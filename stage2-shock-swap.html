@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shock swap, front left</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%23f4f3f0' width='16' height='16'/%3E%3Ccircle fill='%23141413' cx='8' cy='8' r='3.5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f3f0;
+      --ink: #141413;
+      --muted: #6b6860;
+      --line: #dcd9d3;
+      --card: #fbfaf8;
+      --blue: #2f6bdc;
+      --amber: #9a6a12;
+      --serif: "Newsreader", Georgia, "Times New Roman", serif;
+      --sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 1.0625rem; line-height: 1.55; }
+    .shell { max-width: 1440px; margin: 0 auto; padding: 40px 32px 96px; }
+    .back { display: inline-block; margin-bottom: 18px; font-size: 0.85rem; color: var(--muted); text-decoration: none; }
+    .back:hover { color: var(--ink); }
+    .intro { margin-bottom: 26px; }
+    .intro h1 { margin: 0 0 12px; font-family: var(--serif); font-weight: 400; font-size: clamp(2.2rem, 4.2vw, 3.5rem); line-height: 1.04; letter-spacing: -0.03em; }
+    .intro .lead { margin: 0; color: var(--muted); font-size: 1.15rem; max-width: 54rem; }
+
+    .demo { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 32px; align-items: start; }
+    .stage-col { min-width: 0; }
+    .view { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #c9c7c3; border: 1px solid var(--line); }
+    .view canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+    .view canvas:active { cursor: grabbing; }
+    .view.pick canvas { cursor: pointer; }
+    .view::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0) 55%, rgba(60,56,48,0.16) 100%); }
+    .view-top, .view-bottom { position: absolute; left: 14px; right: 14px; z-index: 3; display: flex; justify-content: space-between; align-items: center; gap: 10px; pointer-events: none; }
+    .view-top { top: 14px; }
+    .view-bottom { bottom: 14px; }
+    .view-bottom p { margin: 0; font-size: 0.82rem; color: #4c4a44; }
+    .chip { pointer-events: auto; font: inherit; font-size: 0.85rem; font-weight: 500; padding: 7px 13px; color: var(--ink); background: rgba(255, 255, 255, 0.84); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; white-space: nowrap; }
+    .chip:hover { border-color: var(--ink); }
+    .readout { pointer-events: none; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 7px 13px; border-radius: 999px; background: rgba(255, 255, 255, 0.84); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+    .tray-state { display: flex; gap: 6px; pointer-events: none; }
+    .tray-state span { font-size: 0.74rem; font-weight: 600; letter-spacing: 0.04em; padding: 7px 11px; border-radius: 999px; background: rgba(255, 255, 255, 0.84); border: 1px solid var(--line); color: var(--muted); font-variant-numeric: tabular-nums; }
+    .tray-state span.in { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .turns { position: absolute; z-index: 3; left: 50%; bottom: 58px; transform: translateX(-50%); pointer-events: none; font-family: var(--serif); font-size: 1.7rem; padding: 4px 18px; border-radius: 999px; background: rgba(255,255,255,0.9); border: 1px solid var(--line); font-variant-numeric: tabular-nums; opacity: 0; transition: opacity 0.2s ease; }
+    .turns.on { opacity: 1; }
+    .hover-tip { position: absolute; z-index: 4; pointer-events: none; padding: 5px 10px; font-size: 0.8rem; font-weight: 500; border-radius: 8px; background: var(--ink); color: #fff; transform: translate(12px, 14px); opacity: 0; transition: opacity 0.12s ease; max-width: 260px; }
+    .hover-tip.on { opacity: 1; }
+    .loading, .view-error { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 24px; text-align: center; background: #c9c7c3; color: #4c4a44; }
+    .loading[hidden], .view-error[hidden] { display: none !important; }
+    .film-layer { position: absolute; inset: 0; z-index: 6; background: #c9c7c3; opacity: 1; transition: opacity 0.65s ease; pointer-events: auto; }
+    .film-layer.off { opacity: 0; pointer-events: none; }
+    .film-layer video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .film-skip { position: absolute; right: 14px; bottom: 14px; z-index: 2; }
+    .gate { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 24px; background: rgba(244, 243, 240, 0.92); backdrop-filter: blur(6px); }
+    .gate[hidden] { display: none !important; }
+    .gate-card { max-width: 28rem; width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px 26px 24px; box-shadow: 0 24px 80px rgba(20, 20, 19, 0.08); }
+    .gate-card h2 { margin: 0 0 8px; font-family: var(--serif); font-weight: 400; font-size: 2rem; letter-spacing: -0.02em; }
+    .gate-card p { margin: 0 0 16px; color: var(--muted); }
+    .symptoms { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .symptoms button { width: 100%; text-align: left; font: inherit; font-size: 0.98rem; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+    .symptoms button:hover { border-color: var(--ink); }
+    .symptoms button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); font-weight: 600; }
+    .gate-note { margin-top: 14px; font-size: 0.82rem; color: var(--muted); }
+
+    .controls { margin-top: 20px; }
+    .controls.disabled { opacity: 0.4; pointer-events: none; }
+    .transport { display: grid; grid-template-columns: auto auto 1fr auto; gap: 14px; align-items: center; }
+    .tbtn { font: inherit; font-size: 0.92rem; font-weight: 600; padding: 11px 18px; border-radius: 999px; cursor: pointer; border: 1px solid var(--ink); background: transparent; color: var(--ink); white-space: nowrap; }
+    .tbtn.primary { background: var(--ink); color: #fff; }
+    .tbtn:disabled { opacity: 0.35; cursor: default; }
+    .tbtn:hover:not(:disabled) { opacity: 0.88; }
+    input[type="range"] { --p: 0%; -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; margin: 0; }
+    input[type="range"]:focus { outline: none; }
+    input[type="range"]::-webkit-slider-runnable-track { height: 2px; border-radius: 2px; background: linear-gradient(to right, var(--ink) var(--p), #cfccc5 var(--p)); }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -10px; border-radius: 50%; background: var(--ink); border: 4px solid var(--bg); box-shadow: 0 0 0 1px var(--ink); }
+    input[type="range"]::-moz-range-track { height: 2px; background: #cfccc5; border: 0; }
+    input[type="range"]::-moz-range-progress { height: 2px; background: var(--ink); }
+    input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 4px solid var(--bg); box-shadow: 0 0 0 1px var(--ink); }
+    .explode-row { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; margin-top: 2px; }
+    .explode-row label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .explode-row output { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.85rem; min-width: 3.2rem; text-align: right; }
+    .caption { margin: 12px 0 0; font-size: 0.92rem; color: var(--muted); max-width: 50rem; }
+
+    aside { position: sticky; top: 20px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+    .tab { font: inherit; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 14px 10px; background: transparent; color: var(--muted); border: 0; cursor: pointer; }
+    .tab[aria-selected="true"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+    .panel { padding: 22px 22px 22px; max-height: min(78vh, 760px); overflow: auto; }
+    .panel[hidden] { display: none; }
+    .eyebrow { margin: 0 0 8px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .panel h2 { margin: 0 0 4px; font-family: var(--serif); font-weight: 400; font-size: 1.9rem; line-height: 1.1; letter-spacing: -0.02em; }
+    .panel h3 { margin: 18px 0 4px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .panel p { margin: 0 0 8px; }
+    .meta { font-size: 0.86rem; color: var(--muted); margin-bottom: 12px !important; }
+
+    .mode { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: #ecebe6; border-radius: 999px; margin: 0 0 16px; }
+    .mode button { font: inherit; font-size: 0.82rem; font-weight: 600; padding: 9px 8px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; line-height: 1.25; }
+    .mode button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+    .steps { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 4px; }
+    .steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 26px 1fr auto; gap: 10px; align-items: center; font: inherit; font-size: 0.95rem; padding: 8px 10px; border: 1px solid transparent; border-radius: 10px; background: transparent; cursor: pointer; color: var(--muted); }
+    .steps button:hover { border-color: var(--line); }
+    .steps button .n { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .steps button .t { font-size: 0.75rem; color: var(--muted); }
+    .steps button.done .n { background: #e6e4de; }
+    .steps button.here { color: var(--ink); background: #fff; border-color: var(--ink); font-weight: 600; }
+    .steps button.here .n { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .step-body p.do { font-size: 1.02rem; }
+    .kv { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+    .pill { font-size: 0.78rem; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: #fff; border: 1px solid var(--line); color: var(--ink); }
+    .watch { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: #f7efd9; border: 1px solid #e8d9a8; font-size: 0.92rem; color: #4d3b0b; }
+    .watch b { font-weight: 600; }
+    .partchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .partchips button { font: inherit; font-size: 0.8rem; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: #fff; border: 1px solid var(--ink); color: var(--ink); cursor: pointer; font-variant-numeric: tabular-nums; }
+    .partchips button:hover { background: var(--ink); color: #fff; }
+    .checklist { margin: 4px 0 0; padding-left: 18px; font-size: 0.92rem; }
+    .step-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+
+    .badge { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; margin: 0 6px 6px 0; }
+    .badge.ok { background: #e3efe3; color: #1f5a2a; }
+    .badge.guess { background: #f7efd9; color: var(--amber); }
+    .badge.neutral { background: #ecebe6; color: var(--muted); }
+    .shoprow { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 0.92rem; padding: 8px 0; border-top: 1px solid var(--line); }
+    .shoprow:first-of-type { border-top: 0; }
+    .shoprow a { color: var(--ink); text-underline-offset: 3px; }
+    .shoprow .px { font-variant-numeric: tabular-nums; text-align: right; }
+    .shoprow small { color: var(--muted); grid-column: 1 / -1; margin-top: -2px; }
+    .warn { margin: 0 0 6px; padding: 8px 12px; border-radius: 10px; background: #fbe9e7; border: 1px solid #efc3bc; color: #6a2118; font-size: 0.92rem; }
+    .issue { margin: 0 0 6px; padding: 8px 12px; border-radius: 10px; background: #f7efd9; border: 1px solid #e8d9a8; color: #4d3b0b; font-size: 0.92rem; }
+    .src { font-size: 0.78rem; color: var(--muted); }
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+    .btn { font: inherit; font-size: 0.92rem; font-weight: 600; padding: 12px 12px; border-radius: 999px; cursor: pointer; border: 1px solid var(--ink); text-align: center; text-decoration: none; }
+    .btn.primary { background: var(--ink); color: #fff; }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn:hover { opacity: 0.88; }
+    .empty { color: var(--muted); }
+
+    .facts { margin-top: 64px; padding-top: 34px; border-top: 1px solid var(--line); max-width: 54rem; }
+    .facts h2 { margin: 0 0 18px; font-family: var(--serif); font-weight: 400; font-size: 1.75rem; }
+    .facts ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+    .facts li { color: var(--muted); padding-left: 16px; border-left: 2px solid var(--line); }
+    .facts li strong { color: var(--ink); font-weight: 600; }
+    details.all { margin-top: 36px; max-width: 70rem; }
+    details.all summary { cursor: pointer; font-family: var(--serif); font-size: 1.5rem; }
+    table.parts { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.9rem; }
+    table.parts th { text-align: left; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--ink); }
+    table.parts td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    table.parts td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    table.parts tr.row { cursor: pointer; }
+    table.parts tr.row:hover { background: #fff; }
+    :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    @media (max-width: 1060px) {
+      .demo { grid-template-columns: 1fr; }
+      aside { position: static; }
+      .panel { max-height: none; }
+      .shell { padding: 44px 20px 72px; }
+    }
+    @media (max-width: 640px) {
+      .transport { grid-template-columns: auto auto 1fr; }
+      .transport .next { grid-column: 1 / -1; }
+      .readout { font-size: 0.7rem; padding: 6px 10px; max-width: 58%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .tray-state span { font-size: 0.68rem; padding: 6px 8px; }
+      .turns { font-size: 1.2rem; bottom: 54px; }
+      .view-bottom p { display: none; }
+      table.parts .hide-s { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <a class="back" href="how-it-gets-built.html">&larr; The front axle demo</a>
+    <header class="intro">
+      <h1>Swap a front shock</h1>
+      <p class="lead">The front left corner of an FTX Carnage 2.0, every part named by its FTX number. Follow the eight steps, watch each screw turn out and land in the tray, or click any part to see what it is, what to buy and what to watch for.</p>
+    </header>
+
+    <div class="demo">
+      <div class="stage-col">
+        <div class="view" id="view">
+          <div class="film-layer" id="film-layer" hidden>
+            <video id="hero-film" playsinline muted preload="auto" poster="media/hero-poster.jpg"></video>
+            <button type="button" class="chip film-skip" id="film-skip">Skip film</button>
+          </div>
+          <p class="loading" id="loading">Setting up the bench&hellip;</p>
+          <p class="view-error" id="view-error" hidden>The 3D view did not start. Refresh the page. Chrome works best.</p>
+          <div class="view-top">
+            <span class="readout" id="phase">The corner</span>
+            <div class="tray-state" id="tray-state" aria-label="Screw tray">
+              <span id="slot-a">M3&times;18 &middot; out</span>
+              <span id="slot-b">M3&times;12 &middot; out</span>
+            </div>
+          </div>
+          <div class="turns" id="turns" aria-live="polite"></div>
+          <div class="hover-tip" id="tip"></div>
+          <div class="view-bottom">
+            <p>Drag to orbit. Scroll to zoom. Click a part.</p>
+            <button type="button" class="chip" id="reset">Reset view</button>
+          </div>
+        </div>
+
+        <div class="controls disabled" id="controls">
+          <div class="transport">
+            <button type="button" class="tbtn" id="prev">Back</button>
+            <button type="button" class="tbtn primary" id="play">Start</button>
+            <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Progress through this step">
+            <button type="button" class="tbtn next" id="next">Next step</button>
+          </div>
+          <div class="explode-row">
+            <label for="explode">Explode</label>
+            <input id="explode" type="range" min="0" max="1000" value="0" aria-label="Pull every part out along its assembly axis">
+            <output id="explode-out">0%</output>
+          </div>
+          <p class="caption">Built from the FTX Carnage 2.0 manual, shop photos and review videos, then lit and modelled in Blender. Each part pulls out along the axis it really comes off on.</p>
+        </div>
+      </div>
+
+      <aside>
+        <article class="card">
+          <div class="tabs" role="tablist">
+            <button type="button" class="tab" role="tab" id="tab-job" aria-selected="true" aria-controls="panel-job">Job card</button>
+            <button type="button" class="tab" role="tab" id="tab-part" aria-selected="false" aria-controls="panel-part">Part</button>
+          </div>
+          <section class="panel" id="panel-job" role="tabpanel" aria-labelledby="tab-job">
+            <p class="eyebrow">Front shock, left</p>
+            <div class="mode" role="group" aria-label="Which shock goes back on">
+              <button type="button" id="mode-stock" aria-pressed="true">Rebuild the stock shock<br><span style="font-weight:500;opacity:.8">FTX6202</span></button>
+              <button type="button" id="mode-alu" aria-pressed="false">Upgrade to aluminium<br><span style="font-weight:500;opacity:.8">FTX6356</span></button>
+            </div>
+            <ol class="steps" id="steps"></ol>
+            <div class="step-body" id="step-body"></div>
+          </section>
+          <section class="panel" id="panel-part" role="tabpanel" aria-labelledby="tab-part" hidden>
+            <div id="part-body"><p class="empty">Click any part in the 3D view, or a part number on the job card.</p></div>
+          </section>
+        </article>
+      </aside>
+    </div>
+
+    <details class="all" id="all-parts">
+      <summary>Every part in this model</summary>
+      <table class="parts" id="parts-table">
+        <thead><tr><th>FTX no.</th><th>Name</th><th class="hide-s">Qty</th><th class="hide-s">Used in step</th><th>Shape</th><th class="hide-s">Shop price</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </details>
+
+    <section class="facts" aria-labelledby="facts-title">
+      <h2 id="facts-title">What is real and what is a guess</h2>
+      <ul>
+        <li><strong>Real:</strong> every part number, the two shock screw sizes and thread (M3, 0.5 mm pitch, 17 and 5 turns), the 95 mm shock length, and the shop names, prices and stock, which were read from the live shop pages on 15 October 2026.</li>
+        <li><strong>Guess:</strong> the outline of the tower, lower arm, upright, bumper and gearbox housing. They are read from the manual drawing and photos, not measured. Anything marked <em>Stand-in shape</em> on a part card is a guess. The FTX6356 aluminium shock is drawn as the stock shock in silver, because it was not photographed.</li>
+        <li><strong>Not shown:</strong> the inside of the shock, the oil, the electronics and the rest of the truck. Prices and stock change, so check the shop before you order.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="gate" id="gate" hidden role="dialog" aria-labelledby="gate-title" aria-modal="true">
+    <div class="gate-card">
+      <h2 id="gate-title">What feels wrong?</h2>
+      <p>Pick the closest symptom. The job card only strips as far as this corner needs.</p>
+      <ul class="symptoms" id="symptoms">
+        <li><button type="button" data-symptom="soft">Front end feels soft or bouncy</button></li>
+        <li><button type="button" data-symptom="oil">Oil on the shock shaft or cap</button></li>
+        <li><button type="button" data-symptom="noise">Clunk from the front when landing</button></li>
+      </ul>
+      <p class="gate-note">Preview model built from the FTX manual and shop photos, not a measured CAD file.</p>
+    </div>
+  </div>
+
+  <noscript>Turn on JavaScript to use the 3D view.</noscript>
+
+  <script>
+    /* The click that opens this page expires while Three.js downloads.
+       Resume an audio context in this classic script, before that import. */
+    (function () {
+      var params = new URLSearchParams(location.search);
+      if (params.get("demo") !== "1" && params.get("demo") !== "true") return;
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      var ctx = new Ctx();
+      var gen = 0;
+      var current = null;
+      window.__narrCtx = ctx;
+      window.__narrUnlocked = ctx.resume().then(function () { return ctx.state === "running"; });
+      var cache = {};
+      function load(i) {
+        if (!cache[i]) {
+          cache[i] = fetch("audio/narr-" + i + ".mp3").then(function (r) {
+            if (!r.ok) throw new Error("narr " + i);
+            return r.arrayBuffer();
+          }).then(function (b) { return ctx.decodeAudioData(b); });
+        }
+        return cache[i];
+      }
+      [0, 1, 2].forEach(function (i) { load(i).catch(function () {}); });
+      window.__narrStop = function () {
+        gen += 1;
+        if (current) {
+          try { current.stop(); } catch (e) {}
+          current = null;
+        }
+      };
+      window.__narrPlay = function (indices) {
+        var mine = ++gen;
+        if (current) {
+          try { current.stop(); } catch (e) {}
+          current = null;
+        }
+        return window.__narrUnlocked.then(function (ok) {
+          if (!ok || ctx.state !== "running") throw new Error("locked");
+          var chain = Promise.resolve();
+          indices.forEach(function (i) {
+            chain = chain.then(function () {
+              if (mine !== gen) return;
+              return load(i).then(function (buf) {
+                if (mine !== gen) return;
+                return new Promise(function (resolve) {
+                  var src = ctx.createBufferSource();
+                  src.buffer = buf;
+                  src.connect(ctx.destination);
+                  current = src;
+                  window.__narrLine = i;
+                  src.onended = function () {
+                    if (current === src) current = null;
+                    resolve();
+                  };
+                  src.start();
+                });
+              });
+            });
+          });
+          return chain;
+        });
+      };
+    })();
+  </script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+    import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+
+    const BASE = "stage2/";
+    const $ = (id) => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const MM = 0.001;
+    const TAU = Math.PI * 2;
+    const b2t = (x, y, z) => new THREE.Vector3(x * MM, z * MM, -y * MM);
+    const b2d = (x, y, z) => new THREE.Vector3(x, z, -y);
+    const ease = (s) => s * s * (3 - 2 * s);
+    const lin = (s) => s;
+
+    // ------------------------------------------------------------------ what the shops and the manual say
+    const FTX = (slug) => "https://ftx-rc.com/" + slug;
+    const CHECKED = "15 Oct 2026";
+    const SHOP = {
+      FTX6202: { name: "Vantage/Carnage Front Shock Complete, pair", price: "£10.99", stock: "Out of stock", url: FTX("ftx-vantage-carnage-front-shock-complete-2pcs"),
+        alts: [["AT Models", "£9.89", "https://www.align-trex.co.uk/ftx-front-shocks-complete-2-vantage-carnage-ftx6202.html"], ["Al's Hobbies", "£9.89", "https://alshobbies.co.uk/ftx-vantagecarnage-front-shock-complete-2pcs"], ["Reckless RC", "£9.89", "https://www.recklessrc.com/products/ftx6202"]] },
+      FTX6356: { name: "Vantage/Carnage/Outlaw/Zorro Aluminium Front Shock, pair", price: "£12.99", stock: "In stock", url: FTX("ftx-vantage-carnage-aluminium-front-shock"),
+        alts: [["Arrow Models", "£12.28", "https://www.arrowmodels.com/ftx-vantage-carnage-outlaw-aluminium-front-shock-2pcs"], ["Wheelspin Models", "£12.34", "https://wheelspinmodels.co.uk/i/ftx-vantagecarnage-upgrade-aluminium-front-115295/"], ["TJD Models", "£12.99", "https://www.tjdmodels.com/product/ftx-aluminium-front-shocks-assembled-vantage-carnage-ftx6356/"]] },
+      FTX6200: { name: "Front Shock Tower, 1 pc", price: "£2.69", stock: "In stock", url: FTX("ftx-vantage-carnage-front-shock-tower-1pc") },
+      FTX6351: { name: "Carbon Front Shock Tower, 1 set", price: "£9.99", stock: "In stock", url: FTX("ftx-carnage-carbon-front-shock-tower") },
+      FTX6220: { name: "Front Suspension Holder, 2 pcs", price: "£2.29", stock: "In stock", url: FTX("ftx-vantage-carnage-front-susp-holder-2pcs") },
+      FTX6223: { name: "Hinge Pins, outer x1 and inner x1 per set, 2 sets", price: "£2.29", stock: "In stock", url: FTX("ftx-vantage-carnage-hinge-pins-long-short-2sets") },
+      FTX6336: { name: "Hinge Pins (long and short), 2 sets", price: "£1.99", stock: "In stock", url: FTX("ftx-carnage-hinge-pins-long-short-2sets") },
+      FTX6320: { name: "Front Lower Suspension Arms, 2 pcs", price: "£4.50", stock: "In stock", url: FTX("ftx-carnage-bugsta-front-lower-suspension-arm-2pcs") },
+      FTX6322: { name: "Front CVD, 2 pcs", price: "£10.75", stock: "In stock", url: FTX("ftx-carnage-front-cvd-2pcs") },
+      FTX6216: { name: "Uprights, 2 pcs", price: "£3.99", stock: "In stock", url: FTX("ftx-vantage-carnage-uprights-2pcs") },
+      FTX6215: { name: "Steering Knuckle Arm, 2 sets", price: "£2.99", stock: "In stock", url: FTX("ftx-vantage-carnage-steering-knuckle-arm-2sets") },
+      FTX6224: { name: "Wheel Hub, 4 pcs", price: "£1.69", stock: "In stock", url: FTX("ftx-vantage-carnage-wheel-hub-4pcs") },
+      FTX6513: { name: "Pin 10 x 2 mm, 6 pcs", price: "£1.69", stock: "Out of stock", url: FTX("ftx-vantage-carnage-pin-6pcs10-2") },
+      FTX6514: { name: "Pin 11 x 2 mm, 6 pcs", price: "£1.69", stock: "In stock", url: FTX("ftx-vantage-carnage-pin-6pcs11-2") },
+      FTX6310B: { name: "Mounted Wheel and Tyre, complete pair, black", price: "£13.99", stock: "In stock", url: FTX("ftx-carnage-mounted-wheel-tyre-complete-pair-black") },
+      FTX6315B: { name: "Wheel, 2 pcs, black", price: "£4.49", stock: "In stock", url: FTX("ftx-carnage-wheel-black") },
+      FTX6324N: { name: "Carnage 2.0 / Outlaw / Bugsta Updated Bumper", price: "£4.99", stock: "In stock", url: FTX("ftx-carnage-carnage-outlaw-bugsta-new-updated-bumper") },
+      FTX6506: { name: "Ball A, 6 pcs", price: "£2.39", stock: "In stock", url: FTX("ftx-vantage-carnage-ball-a-6pcs") },
+      FTX6507: { name: "Ball B, 6 pcs", price: "£2.39", stock: "In stock", url: FTX("ftx-vantage-carnage-ball-b-6pcs") },
+      FTX6508: { name: "Ball C, 6 pcs", price: "£2.50", stock: "In stock", url: FTX("ftx-vantage-carnage-ball-c-6pcs") },
+      FTX6502: { name: "Steering Linkage Ball End, 6 pcs", price: "£1.69", stock: "In stock", url: FTX("ftx-vantage-carnage-steering-linkage-ball-end-6pcs") },
+      FTX6327: { name: "Front Upper Suspension Arm, 2 sets", price: "£3.29", stock: "Out of stock (blue FTX6327B in stock)", url: FTX("ftx-carnage-front-upper-susp-arm-2sets") },
+      FAST118: { name: "M3 x 18 Socket Cap Head, 6 pcs", price: "£0.99", stock: "Out of stock", url: FTX("m3-x-18-socket-cap-head6"),
+        alts: [["Wheelspin Models", "£0.94", "https://wheelspinmodels.co.uk/i/fastrax-m3-x-18-socket-cap-head-bolts-6-72007/"], ["Redfin Models", "£0.89, backorder", "https://redfinmodels.com/product/fastrax-m3-x-18-socket-cap-head-6/"]] },
+      FAST114: { name: "M3 x 8 Socket Cap Head Screws, 6 pcs", price: "£0.99", stock: "Out of stock", url: FTX("m3-x-8-socket-cap-head-screws-6") },
+      FTX6527: { name: "Button Head Hex Screw M3 x 12, 6 pcs", price: "£2.49", stock: "In stock", url: FTX("button-head-hex-screw-m3-12-6pcs") },
+      FTX6536: { name: "Flat Head Hex M3 x 10, 5 pcs", price: "£4.49", stock: "In stock", url: FTX("flat-head-hex-m3-10-5p") },
+      FTX6526: { name: "Button Head Hex Screw M3 x 10, 6 pcs", price: "", stock: "Listing found by name, the part number is not printed on the page", url: FTX("button-head-hes-screw-6pcs%20m3-10"), unverifiedCode: true },
+      FTX6537: { name: "Flat Head Hex M3 x 12, 6 pcs", price: "", stock: "Listing found by name, the part number is not printed on the page", url: FTX("flat-head-hex-6pcs%20m3-12"), unverifiedCode: true },
+      FTX6535: { name: "Flat Head Hex M3 x 8, 6 pcs", price: "", stock: "Listing found by name, the part number is not printed on the page", url: FTX("flat-head-hex-6pcs%20m3-8"), unverifiedCode: true },
+      FTBB120: { name: "Performance Bearings 5 x 10 x 4 mm, 2 pcs", price: "£3.99", stock: "In stock", url: FTX("fastrax-performance-bearings-5x10x4mm-2") },
+      FTX6225: { name: "Gearbox Housing Set, 2 pcs", price: "£2.99", stock: "In stock", url: FTX("ftx-vantage-carnage-gearbox-housing-set-2pcs") },
+      FTX6204: { name: "Front Shock Spring, 2 pcs", price: "£1.99", stock: "In stock", url: FTX("ftx-vantage-carnage-front-shock-spring-2pcs") },
+      FTX6206: { name: "Front Shock Shaft and Piston Set, 2 sets", price: "£1.99", stock: "In stock", url: FTX("ftx-vantage-carnage-front-shock-shaft-piston-set-2sets") },
+      FTX6208: { name: "Front Shock Body, 2 pcs", price: "£1.69", stock: "In stock", url: FTX("ftx-vantage-carnage-front-shock-body-2pcs") },
+      FTX6210: { name: "Shock Upper Cap, 2 sets", price: "£2.75", stock: "In stock", url: FTX("ftx-vantage-carnage-shock-upper-cap-2sets") },
+      FTX6211: { name: "Shock Lower Caps, 2 sets", price: "£2.99", stock: "In stock", url: FTX("ftx-vantage-carnage-shock-lower-caps-2sets") },
+      FTX6212: { name: "Shock Lower Holder and Adjust Ring, 2 sets", price: "£2.99", stock: "In stock", url: FTX("ftx-vantage-carnage-shock-lower-holder-adjust-ring-2sets") },
+      FTX6500: { name: "Shock Ball End, 6 pcs", price: "£1.69", stock: "In stock", url: FTX("ftx-vantage-carnage-shock-ball-end-6pcs") },
+      FTX6512: { name: "Shock O-ring (upper), 4 pcs", price: "£1.69", stock: "In stock", url: FTX("ftx-vantage-carnage-shock-o-ring-upper-4pcs") },
+      FTX6510: { name: "Shock O-ring (lower), 6 pcs", price: "£1.69", stock: "Out of stock", url: FTX("ftx-vantage-carnage-shock-o-ring-lower-6pcs") },
+      FTX6203: { name: "Vantage/Carnage Rear Shock Complete, pair", price: "£11.49", stock: "In stock", url: FTX("ftx-vantage-carnage-rear-shock-complete-2pcs") },
+      FASTM3: { name: "M3 Nyloc Nuts", price: "£0.99", stock: "In stock", url: FTX("m3-nyloc-nuts") }
+    };
+    const WHAT = {
+      FTX6202: "The complete front shock: body, spring, shaft, oil and both eyes. It is sold as a pair, one for each front corner.",
+      FTX6356: "The aluminium front shock. Same 95 mm eye to eye as the stock one, same mounts, comes filled with oil.",
+      FTX6200: "The moulded shock tower on the front of the chassis. It holds the top of both front shocks. The top shock screw goes into its ear.",
+      FTX6220: "The two chassis blocks that the inner end of the front lower arm hinges in, one in front of the gearbox and one behind.",
+      FTX6223: "Hinge pins. The inner pin goes through the chassis holders and the arm. The outer pin joins the arm to the upright.",
+      FTX6320: "The plastic front lower arm. The bottom shock screw goes through the lug on its rear leg.",
+      FTX6322: "The front driveshaft. It carries drive from the gearbox out through the upright to the wheel hub.",
+      FTX6216: "The upright, which holds the wheel bearings and hub. The arms and the steering link hinge to it.",
+      FTX6215: "The steering knuckle arm. The steering link pulls on its rear tab to turn the wheel.",
+      FTX6224: "The 12 mm hex wheel hub. The drive pin spins it and the wheel sits on its hex.",
+      FTX6513: "The 10 x 2 mm drive pin across the axle end, inside the hub. It is what makes the hub turn with the axle.",
+      FTX6310B: "The tyre already glued to its wheel, sold as a pair. This is what you slide off in step 1.",
+      FTX6315B: "The bare wheel without a tyre.",
+      FTX6324N: "The updated front bumper. It takes the knocks and holds the front of the holders.",
+      FTX6506: "Ball A. It is the small ball that sits in the lower rod end of the shock, and also the upright end of the upper arm.",
+      FTX6507: "Ball B. It is the ball on the tower end of the upper arm.",
+      FTX6508: "Ball C. It is the flanged bushing in the top eye of the shock.",
+      FTX6502: "The ball end that clips onto each end of the upper arm.",
+      FTX6327: "The front upper arm, a straight link between the tower and the top of the upright.",
+      FAST118: "The long M3 x 18 cap head screw. One goes through the top eye of the shock into the tower ear. You need a 2.5 mm hex driver.",
+      FAST114: "M3 x 8 cap head screw for the knuckle arm.",
+      FTX6527: "The M3 x 12 button head screw. One goes through the bottom eye of the shock into the lug on the lower arm. You need a 2.0 mm hex driver.",
+      FTX6536: "M3 x 10 flat head screw. Two a side hold each suspension holder to the chassis.",
+      FTX6526: "M3 x 10 button head screw. It holds the bumper.",
+      FTX6537: "M3 x 12 flat head screw. It is used on the tower foot and the upper arm ball.",
+      FTX6535: "M3 x 8 flat head screw. It holds the upper arm ball on the tower.",
+      FTBB120: "The 10 x 5 x 4 mm wheel bearing. Two sit in each upright.",
+      FTX6225: "The gearbox housing. In this model it is a plain block that stands in for it.",
+      FTX6204: "The shock spring. It sits between the adjust ring and the lower cup.",
+      FTX6206: "The shaft and piston. The piston is inside the body and not drawn.",
+      FTX6208: "The black ribbed shock body that holds the oil.",
+      FTX6210: "The upper cap: the blue hex cap and the black top with the eye.",
+      FTX6211: "The blue lower cap and washer that seal the bottom of the body.",
+      FTX6212: "The lower spring cup and the blue adjust ring.",
+      FTX6500: "The black rod end on the bottom of the shaft, with the eye for the bottom screw.",
+      FTX6512: "The blue O-ring that seals under the upper cap."
+    };
+    const LOOK = {
+      FTX6202: [["FTX6203", "Rear shocks look almost the same. Front is FTX6202, rear is FTX6203."]],
+      FTX6208: [["FTX6209", "The rear shock body is a different part."]],
+      FTX6204: [["FTX6205", "The rear shock spring is a different part."]],
+      FTX6206: [["FTX6207", "The rear shaft and piston is a different part."]],
+      FTX6513: [["FTX6514", "11 x 2 mm pin. It looks the same and is 1 mm longer."]],
+      FTX6527: [["FTX6537", "Flat head M3 x 12. Same length, wrong head. The button head belongs here."]],
+      FTX6537: [["FTX6527", "Button head M3 x 12. The bottom shock screw is this one."]],
+      FTX6526: [["FTX6536", "Flat head M3 x 10."]],
+      FTX6536: [["FTX6526", "Button head M3 x 10."]],
+      FTX6223: [["FTX6336", "A hinge pin set listed for Carnage, Outlaw and Zorro. The manual prints FTX6336 for the same job. Check which one your truck's drawing shows."]],
+      FTX6320: [["FTX6320B", "The blue plastic version of the same arm."]],
+      FTX6327: [["FTX6327B", "The blue plastic version of the same arm."]],
+      FTBB120: [["FTBB16", "Old code for the same 10 x 5 x 4 bearing. The shop page tells you to order FTBB120."]],
+      FTX6200: [["FTX6351", "The carbon tower upgrade, same job."]],
+      FTX6310B: [["FTX6315B", "Bare wheels with no tyres."]],
+      FTX6315B: [["FTX6310B", "Wheels already glued to tyres."]],
+      FAST118: [["FAST114", "Same head, only 8 mm long."]]
+    };
+    const ISSUES = {
+      FTX6202: ["Owners report the stock front shocks leak oil. The fix is new O-rings and fresh oil, or the aluminium shock FTX6356. The manual gives no oil weight, so check before you fill."],
+      FTX6356: ["Shop Q&A says it is 95 mm bolt to bolt and comes filled with 35 wt oil. The oil weight is the shop's answer, not the manual's.", "The model draws this as the stock shock in silver. The real one was not photographed."],
+      FTX6320: ["Owners report that aluminium front arms bend and pass the impact into the chassis. Most keep the plastic arms."],
+      FTX6224: ["Owners report a loose wheel nut chews the plastic hex until the wheel spins on it. If the corners look round, replace the hub."],
+      "M4 nut": ["Owners report loose wheel nuts melt the plastic hex hubs. Many fit an M4 flanged nylon-lock nut and tighten it snug."],
+      FAST118: ["It threads into plastic. Snug is enough. The manual says thread lock is for screws that go into metal threads (my reading: leave it off here)."],
+      FTX6527: ["It threads into plastic. Snug is enough. Do not use thread lock here (manual page 11 limits it to metal threads)."]
+    };
+
+    // ------------------------------------------------------------------ the job
+    const FLAT = (x, y, z) => new THREE.Vector3(x, y, z);
+    const TILT = (17 * Math.PI) / 180;
+    const L0 = [-80, -14, 40];
+    const T0 = [L0[0] + 95 * Math.sin(TILT), -14, L0[2] + 95 * Math.cos(TILT)];
+    const R1 = [T0[0], -14 + 12.3, T0[2]];
+    const R2 = [L0[0], -14 + 6.3, L0[2]];
+    const SLOT1 = [-206, 9.5, 6.4];
+    const SLOT2 = [-224, 9.5, 6.4];
+    const BENCH_ROT = (73 * Math.PI) / 180;
+    const BENCH_STOCK = FLAT(-170, -96, -30);
+    const BENCH_ALU = FLAT(-170, -131, -30);
+
+    const ACTORS = {
+      wheel: { nodes: ["FTX6315B_wheel", "FTX6310B_tyre"] },
+      nut: { nodes: ["wheel_nut_M4"], spinAxis: new THREE.Vector3(-1, 0, 0) },
+      s1: { nodes: ["FAST118_screw_carrier"], spinNode: "FAST118_screw" },
+      s2: { nodes: ["FTX6527_screw_carrier"], spinNode: "FTX6527_screw" },
+      stock: { nodes: ["shock_stock_FTX6202"], rotAxis: new THREE.Vector3(0, 0, -1) },
+      alu: { nodes: ["shock_alu_FTX6356"], rotAxis: new THREE.Vector3(0, 0, -1) }
+    };
+
+    const STEPS = [
+      { title: "Take the wheel off", time: "1 min", dur: 9, tools: ["7 mm nut driver"], parts: ["FTX6310B", "FTX6224", "FTX6513"],
+        cam: [[-420, -250, 200], [-190, -5, 60]],
+        do: "Hold the tyre and turn the wheel nut anticlockwise. About ten turns frees it. Put the nut somewhere it cannot roll away, then slide the wheel straight off the hex hub.",
+        watch: "Look at the hex hub. If its corners look rounded, a loose nut has been chewing it. The small drive pin through the axle end stays where it is.",
+        check: ["Nut set aside", "Wheel off, hub and drive pin still on the axle"] },
+      { title: "Take out the top screw", time: "1 min", dur: 10, tools: ["2.5 mm hex driver"], parts: ["FAST118", "FTX6200", "FTX6210"],
+        cam: [[-250, -300, 225], [-150, -5, 62]],
+        do: "Fit the 2.5 mm hex driver in the cap head screw in the top eye, on the rear face of the shock tower. Turn it anticlockwise, 17 turns, then lay it in the slot marked M3x18 in the tray.",
+        watch: "This screw is 18 mm long. The bottom one is 12 mm. Keep them in their own slots so you cannot swap them.",
+        check: ["Screw in the M3x18 slot", "Shock still held by the bottom screw"] },
+      { title: "Take out the bottom screw", time: "1 min", dur: 8, tools: ["2.0 mm hex driver"], parts: ["FTX6527", "FTX6320", "FTX6506"],
+        cam: [[-250, -290, 165], [-155, -5, 45]],
+        do: "Fit the 2.0 mm hex driver in the button head screw in the bottom eye, where the shock meets the lower arm. Turn it anticlockwise, about 5 turns. Lay it in the slot marked M3x12.",
+        watch: "FTX6527 is a button head. FTX6537 is also M3 x 12 but a flat head, and it is the wrong one for this hole.",
+        check: ["Screw in the M3x12 slot", "Shock now loose on both ends"] },
+      { title: "Slide the shock out", time: "1 min", dur: 7, tools: [], parts: ["FTX6202", "FTX6208", "FTX6204"],
+        cam: [[-290, -300, 180], [-150, -50, 55]],
+        do: "With both screws out, the shock slides off its two lugs towards the back of the truck. Lift it clear and lay it on the bench.",
+        watch: "Squeeze it gently. If oil weeps from the lower cap or around the shaft, the seals have gone. That is the reason to rebuild it or swap it.",
+        check: ["Both lugs bare", "Old shock on the bench"] },
+      { title: "Put the new shock on", time: "2 min", dur: 7, tools: [], parts: ["FTX6202", "FTX6356", "FTX6508", "FTX6506"],
+        cam: [[-290, -300, 180], [-150, -50, 55]],
+        do: { stock: "Take the rebuilt FTX6202. Slide it forward onto the two lugs: the top eye onto the tower ear and the bottom eye onto the arm lug.", alu: "Take the aluminium FTX6356. Slide it forward onto the two lugs: the top eye onto the tower ear and the bottom eye onto the arm lug." },
+        watch: "Front shocks are FTX6202 and FTX6356. The rear shock FTX6203 looks almost the same. The two eyes should be 95 mm apart.",
+        check: ["Both eyes lined up with their lugs", "Shock sits upright, tilted slightly back"] },
+      { title: "Bottom screw back in", time: "1 min", dur: 9, tools: ["2.0 mm hex driver"], parts: ["FTX6527", "FTX6320"],
+        cam: [[-250, -290, 165], [-155, -5, 45]],
+        do: "Do the bottom first, because it holds the shock while you line up the top. Pass the button head screw through the lower eye and turn it clockwise 5 turns until it is snug.",
+        watch: "Snug is enough. The screw threads into plastic, so too tight strips the hole.",
+        check: ["Screw head flat on the eye", "Shock still swings freely on the screw"] },
+      { title: "Top screw back in", time: "2 min", dur: 11, tools: ["2.5 mm hex driver"], parts: ["FAST118", "FTX6200"],
+        cam: [[-250, -300, 225], [-150, -5, 62]],
+        do: "Swing the shock until the top eye lines up with the tower ear. Pass the long cap head screw through the eye and turn it clockwise, 17 turns, until it is snug.",
+        watch: "Use the long screw here. If it will not start by hand, the eye is not lined up. Back off and try again, do not force it.",
+        check: ["Both screws snug", "Shock moves freely between the two screws"] },
+      { title: "Wheel on and check", time: "2 min", dur: 9, tools: ["7 mm nut driver"], parts: ["FTX6310B", "FTX6224"],
+        cam: [[-420, -250, 200], [-190, -5, 60]],
+        do: "Slide the wheel onto the hex hub. Thread the nut on clockwise and tighten it snug. Then press down on the front of the truck: the shock should squash and spring back smoothly, the same as on the other side.",
+        watch: "A loose nut is what chews the hub. Use a nylon-lock nut and tighten it until the wheel has no play.",
+        check: ["Wheel has no play on the hub", "Shock compresses and rebounds smoothly", "Both screws still snug"] }
+    ];
+    const OVERVIEW_CAM = [[-335, -320, 240], [-125, -10, 62]];
+
+    function buildTimeline(upgrade) {
+      const fit = upgrade ? "alu" : "stock";
+      const segs = [];
+      const S = (act, step, t0, t1, to, extra = {}) => segs.push({ act, step, t0, t1, to, ...extra });
+      const P = (x, y, z) => FLAT(x, y, z);
+
+      function screwTravel(R, SL) {
+        const outY = -30;
+        const raise = Math.max(R[2], 104);
+        const way = [[R[0], outY, raise], [SL[0] + 25, outY, 104], [SL[0], outY, SL[2] + 28], [SL[0], SL[1], SL[2] + 28], [SL[0], SL[1], SL[2]]];
+        const pts = [];
+        let last = [R[0], outY, R[2]];
+        for (const w of way) {
+          if (Math.hypot(w[0] - last[0], w[1] - last[1], w[2] - last[2]) > 0.5) { pts.push(P(w[0] - R[0], w[1] - R[1], w[2] - R[2])); last = w; }
+        }
+        return pts;
+      }
+
+      function screwOut(act, step, R, SL, turns, engage) {
+        const outY = -30;
+        S(act, step, 0, 0.5, { p: P(0, -engage, 0), spin: turns * TAU }, { ease: lin, label: "Turning it out" });
+        S(act, step, 0.5, 0.62, { p: P(0, outY - R[1], 0) }, { ease: ease, label: "Pulling it free" });
+        const pts = screwTravel(R, SL);
+        const end = pts.pop();
+        S(act, step, 0.62, 1, { p: end }, { ease: ease, label: "Lifting to the tray", path: pts });
+      }
+      function screwIn(act, step, R, SL, turns, engage) {
+        const outY = -30;
+        const way = screwTravel(R, SL);
+        const rev = way.slice(0, -1).reverse();
+        S(act, step, 0, 0.38, { p: P(0, outY - R[1], 0) }, { ease: ease, label: "Lifting from the tray", path: rev });
+        S(act, step, 0.38, 0.5, { p: P(0, -engage, 0) }, { ease: ease, label: "Lining it up" });
+        S(act, step, 0.5, 1, { p: P(0, 0, 0), spin: 0 }, { ease: lin, label: "Turning it in" });
+      }
+
+      S("nut", 0, 0, 0.42, { p: P(-7, 0, 0), spin: 10 * TAU }, { ease: lin, label: "Turning the nut off" });
+      S("nut", 0, 0.42, 0.62, { p: P(-43, -78, -53) }, { ease: ease, label: "Setting the nut aside", path: [P(-30, -5, 12), P(-45, -45, -10)] });
+      S("wheel", 0, 0.62, 1, { p: P(-150, 0, 0) }, { ease: ease, label: "Sliding the wheel off" });
+
+      screwOut("s1", 1, R1, SLOT1, 17, 8.5);
+      screwOut("s2", 2, R2, SLOT2, 5, 2.5);
+
+      S("stock", 3, 0, 0.35, { p: P(0, -70, 0) }, { ease: ease, label: "Sliding the shock out" });
+      S("stock", 3, 0.4, 1, { p: BENCH_STOCK, rot: BENCH_ROT }, { ease: ease, label: "Setting it on the bench", path: [P(-70, -88, 30)] });
+
+      S(fit, 4, 0, 0.55, { p: P(0, -70, 0), rot: 0 }, { ease: ease, label: "Lifting the new shock in", path: [P(-70, -88, 30)] });
+      S(fit, 4, 0.6, 1, { p: P(0, 0, 0) }, { ease: ease, label: "Sliding it onto the lugs" });
+
+      screwIn("s2", 5, R2, SLOT2, 5, 2.5);
+      screwIn("s1", 6, R1, SLOT1, 17, 8.5);
+
+      S("wheel", 7, 0, 0.4, { p: P(0, 0, 0) }, { ease: ease, label: "Sliding the wheel on" });
+      S("nut", 7, 0.4, 0.6, { p: P(-7, 0, 0) }, { ease: ease, label: "Bringing the nut back", path: [P(-45, -45, -10), P(-30, -5, 12)] });
+      S("nut", 7, 0.6, 1, { p: P(0, 0, 0), spin: 0 }, { ease: lin, label: "Tightening the nut" });
+
+      const init = {};
+      for (const k of Object.keys(ACTORS)) init[k] = { p: P(0, 0, 0), spin: 0, rot: 0 };
+      init.alu = { p: BENCH_ALU.clone(), spin: 0, rot: BENCH_ROT };
+
+      const cur = {};
+      for (const k of Object.keys(init)) cur[k] = { p: init[k].p.clone(), spin: init[k].spin, rot: init[k].rot };
+      for (const g of segs) {
+        const c = cur[g.act];
+        g.from = { p: c.p.clone(), spin: c.spin, rot: c.rot };
+        const pts = [g.from.p.clone(), ...(g.path || []).map((q) => q.clone()), g.to.p.clone()];
+        g.curve = pts.length > 2 ? new THREE.CatmullRomCurve3(pts, false, "catmullrom", 0.5) : null;
+        c.p = g.to.p.clone();
+        if (g.to.spin !== undefined) c.spin = g.to.spin;
+        if (g.to.rot !== undefined) c.rot = g.to.rot;
+      }
+      return { segs, init, fit };
+    }
+
+    function evaluate(tl, idx, u) {
+      const out = {};
+      for (const k of Object.keys(tl.init)) out[k] = { p: tl.init[k].p.clone(), spin: tl.init[k].spin, rot: tl.init[k].rot };
+      let label = "";
+      if (idx < 0) {
+        out.alu = { p: FLAT(0, 0, 0), spin: 0, rot: 0 };
+        return { st: out, label: "The corner" };
+      }
+      for (const g of tl.segs) {
+        let s;
+        if (g.step < idx) s = 1;
+        else if (g.step === idx) s = Math.min(1, Math.max(0, (u - g.t0) / (g.t1 - g.t0)));
+        else s = 0;
+        if (s <= 0) continue;
+        const e = g.ease(s);
+        const p = g.curve ? g.curve.getPointAt(e) : g.from.p.clone().lerp(g.to.p, e);
+        out[g.act] = {
+          p,
+          spin: g.from.spin + ((g.to.spin ?? g.from.spin) - g.from.spin) * e,
+          rot: g.from.rot + ((g.to.rot ?? g.from.rot) - g.from.rot) * e
+        };
+        if (g.step === idx) label = g.label;
+      }
+      return { st: out, label };
+    }
+
+    const DIRWORD = (a) => {
+      const [x, y, z] = a;
+      const parts = [];
+      if (Math.abs(z) > 0.5) parts.push(z > 0 ? "up" : "down");
+      if (Math.abs(y) > 0.5) parts.push(y > 0 ? "forward" : "back");
+      if (Math.abs(x) > 0.5) parts.push(x > 0 ? "in towards the middle" : "out to the left");
+      return parts.join(" and ") || "straight out";
+    };
+
+    async function main() {
+      if (document.fonts && document.fonts.ready) {
+        await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1200))]);
+      }
+      const view = $("view");
+      const meta = await (await fetch(BASE + "parts_meta.json")).json();
+      const metaByNode = new Map(meta.map((m) => [m.node, m]));
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.NeutralToneMapping;
+      renderer.toneMappingExposure = Number(params.get("exp") ?? 1.0);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.setClearColor(0xc9c7c3);
+      view.insertBefore(renderer.domElement, view.firstChild);
+      renderer.domElement.setAttribute("aria-label", "The front left corner of an FTX Carnage 2.0 on a grey studio floor. Drag to orbit, click a part to inspect it.");
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.01, 8);
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.screenSpacePanning = true;
+      controls.minDistance = 0.1;
+      controls.maxDistance = 1.3;
+      controls.maxPolarAngle = 1.5;
+
+      function setShot(shot) {
+        camera.position.copy(b2t(...shot[0]));
+        controls.target.copy(b2t(...shot[1]));
+        controls.update();
+      }
+      setShot(OVERVIEW_CAM);
+      let tween = null;
+      function flyTo(pos, tgt, ms = 1300) {
+        tween = { t: 0, ms, p0: camera.position.clone(), t0: controls.target.clone(), p1: pos.clone(), t1: tgt.clone() };
+      }
+      controls.addEventListener("start", () => { tween = null; });
+
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      await new Promise((resolve) => {
+        new RGBELoader().load(BASE + "studio.hdr", (tex) => {
+          tex.mapping = THREE.EquirectangularReflectionMapping;
+          scene.environment = pmrem.fromEquirectangular(tex).texture;
+          scene.environmentRotation.set(0, THREE.MathUtils.degToRad(Number(params.get("envrot") ?? 90)), 0);
+          scene.environmentIntensity = Number(params.get("env") ?? 0.85);
+          tex.dispose();
+          resolve();
+        }, undefined, resolve);
+      });
+      scene.add(new THREE.HemisphereLight(0xcbc9c6, 0xcbc9c6, Number(params.get("hemi") ?? 0.22)));
+
+      const key = new THREE.DirectionalLight(0xfff6ea, Number(params.get("key") ?? 1.5));
+      const focus = b2t(-140, -30, 40);
+      key.position.copy(focus).add(new THREE.Vector3(-0.22, 0.5, 0.3));
+      key.target.position.copy(focus);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      const sc = key.shadow.camera;
+      sc.left = -0.34; sc.right = 0.34; sc.top = 0.34; sc.bottom = -0.34; sc.near = 0.05; sc.far = 1.6;
+      key.shadow.bias = -0.0004;
+      key.shadow.normalBias = 0.0006;
+      key.shadow.radius = 5;
+      scene.add(key, key.target);
+
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4), new THREE.ShadowMaterial({ opacity: 0.34 }));
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      const loader = new GLTFLoader();
+      loader.setMeshoptDecoder(MeshoptDecoder);
+      const gltf = await loader.loadAsync(BASE + "corner.glb");
+      const model = gltf.scene;
+      scene.add(model);
+
+      const nodeByName = new Map();
+      const rest = new Map();
+      model.traverse((o) => {
+        nodeByName.set(o.name, o);
+        rest.set(o, { pos: o.position.clone(), quat: o.quaternion.clone() });
+        if (o.isMesh) {
+          o.material = o.material.clone();
+          o.castShadow = true;
+          o.receiveShadow = true;
+          o.userData.baseEmissive = o.material.emissive ? o.material.emissive.clone() : null;
+        }
+      });
+
+      const missing = meta.filter((m) => !nodeByName.has(m.node)).map((m) => m.node);
+      if (missing.length) console.warn("nodes in parts_meta.json but not in the GLB:", missing);
+
+      const actorNodes = {};
+      for (const [k, a] of Object.entries(ACTORS)) {
+        actorNodes[k] = a.nodes.map((n) => nodeByName.get(n));
+        if (actorNodes[k].some((n) => !n)) throw new Error("actor node missing: " + k);
+        a.spin = a.spinNode ? nodeByName.get(a.spinNode) : null;
+        if (a.spinNode && !a.spin) throw new Error("screw node missing: " + a.spinNode);
+      }
+      const actorOf = new Map();
+      for (const [k, ns] of Object.entries(actorNodes)) ns.forEach((n) => actorOf.set(n, k));
+
+      const explodeNodes = meta.filter((m) => m.explode_mm && m.kind !== "prop" && !(m.kind === "screw_mover" && !m.node.endsWith("_carrier")))
+        .map((m) => ({ node: nodeByName.get(m.node), dir: b2d(...m.axis).normalize(), dist: m.explode_mm * MM })).filter((e) => e.node);
+
+      const state = { idx: -1, u: 0, playing: false, upgrade: params.get("upgrade") === "1", explode: Number(params.get("explode") ?? 0), selected: null, speed: 1 };
+      let tl = buildTimeline(state.upgrade);
+      let evalNow = evaluate(tl, state.idx, state.u);
+      const tmpQ = new THREE.Quaternion();
+      const pulse = { until: 0, meshes: [] };
+
+      function applyPose() {
+        evalNow = evaluate(tl, state.idx, state.u);
+        const st = evalNow.st;
+        for (const [k, a] of Object.entries(ACTORS)) {
+          const s = st[k];
+          const off = b2t(s.p.x, s.p.y, s.p.z);
+          for (const n of actorNodes[k]) {
+            const r = rest.get(n);
+            n.position.copy(r.pos).add(off);
+            n.quaternion.copy(r.quat);
+            if (a.rotAxis && s.rot) { tmpQ.setFromAxisAngle(a.rotAxis, s.rot); n.quaternion.premultiply(tmpQ); }
+            if (a.spinAxis && s.spin) { tmpQ.setFromAxisAngle(a.spinAxis, s.spin); n.quaternion.premultiply(tmpQ); }
+          }
+          if (a.spin) {
+            const r = rest.get(a.spin);
+            tmpQ.setFromAxisAngle(new THREE.Vector3(0, 1, 0), s.spin);
+            a.spin.quaternion.copy(r.quat).premultiply(tmpQ);
+          }
+        }
+        const ex = state.explode;
+        if (ex > 0 || applyPose.hadExplode) {
+          for (const e of explodeNodes) {
+            const a = actorOf.get(e.node);
+            const r = rest.get(e.node);
+            const base = r.pos.clone();
+            if (a) base.add(b2t(st[a].p.x, st[a].p.y, st[a].p.z));
+            e.node.position.copy(base).addScaledVector(e.dir, e.dist * ex);
+          }
+          applyPose.hadExplode = ex > 0;
+        }
+        const stockVis = !(state.idx < 0 && state.upgrade);
+        const aluVis = state.upgrade && (state.idx < 0 || state.idx > 4 || (state.idx === 4 && state.u > 0));
+        nodeByName.get("shock_stock_FTX6202").visible = stockVis;
+        nodeByName.get("shock_alu_FTX6356").visible = aluVis;
+        updateReadouts();
+      }
+
+      const turnsEl = $("turns");
+      function updateReadouts() {
+        const st = evalNow.st;
+        const idx = state.idx;
+        const total = idx >= 0 ? STEPS.length : 0;
+        $("phase").textContent = idx < 0 ? "The corner" : `Step ${idx + 1} of ${total}${state.u > 0 && evalNow.label ? " · " + evalNow.label : ""}`;
+        const inSlot = (s, R, SL) => Math.hypot(s.p.x - (SL[0] - R[0]), s.p.y - (SL[1] - R[1]), s.p.z - (SL[2] - R[2])) < 0.6;
+        const a = inSlot(st.s1, R1, SLOT1);
+        const b = inSlot(st.s2, R2, SLOT2);
+        $("slot-a").textContent = "M3×18 · " + (a ? "in tray" : "out");
+        $("slot-a").classList.toggle("in", a);
+        $("slot-b").textContent = "M3×12 · " + (b ? "in tray" : "out");
+        $("slot-b").classList.toggle("in", b);
+        const TURN = { 0: [st.nut, 10, true], 1: [st.s1, 17, true], 2: [st.s2, 5, true], 5: [st.s2, 5, false], 6: [st.s1, 17, false], 7: [st.nut, 10, false] }[idx];
+        if (TURN && state.u > 0 && state.u < 1 && /Turning|Tightening/.test(evalNow.label)) {
+          const turned = TURN[0].spin / TAU;
+          const done = TURN[2] ? turned : TURN[1] - turned;
+          turnsEl.textContent = `Turn ${Math.max(1, Math.min(TURN[1], Math.floor(done) + 1))} of ${TURN[1]}`;
+          turnsEl.classList.add("on");
+        } else turnsEl.classList.remove("on");
+        const scrub = $("scrub");
+        scrub.value = String(Math.round(state.u * 1000));
+        scrub.style.setProperty("--p", (state.u * 100).toFixed(1) + "%");
+        scrub.disabled = idx < 0;
+        scrub.setAttribute("aria-valuetext", idx < 0 ? "Not started" : `${Math.round(state.u * 100)} percent through step ${idx + 1}`);
+        $("prev").disabled = idx < 0;
+        $("next").disabled = idx >= STEPS.length - 1 && state.u >= 0.999;
+        $("next").textContent = idx < 0 ? "Start the job" : idx >= STEPS.length - 1 ? "Done" : "Next step";
+        $("play").textContent = state.playing ? "Pause" : idx < 0 ? "Start" : state.u >= 0.999 ? "Replay" : "Play";
+      }
+
+      // ------------------------------------------------------------------ job card
+      const stepsEl = $("steps");
+      function renderSteps() {
+        stepsEl.innerHTML = "";
+        const mk = (i, label, time) => {
+          const li = document.createElement("li");
+          const b = document.createElement("button");
+          b.type = "button";
+          b.dataset.i = String(i);
+          b.innerHTML = `<span class="n">${i < 0 ? "0" : i + 1}</span><span>${label}</span><span class="t">${time}</span>`;
+          b.addEventListener("click", () => goStep(i, true));
+          li.appendChild(b);
+          stepsEl.appendChild(li);
+        };
+        mk(-1, "The corner, as it is", "");
+        STEPS.forEach((s, i) => mk(i, s.title, s.time));
+      }
+      function renderStepBody() {
+        const body = $("step-body");
+        stepsEl.querySelectorAll("button").forEach((b) => {
+          const i = Number(b.dataset.i);
+          b.classList.toggle("here", i === state.idx);
+          b.classList.toggle("done", i < state.idx);
+          if (i === state.idx) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+        });
+        if (state.idx < 0) {
+          body.innerHTML = `<div class="step-body"><p class="do">This is the front left corner as it sits on the truck. Click any part to see what it is. Pull it apart with the Explode slider, or press Start the job to follow the swap.</p>
+            <p class="meta">Pick the upgrade above and the aluminium shock FTX6356 replaces the stock one in the model.</p></div>`;
+          return;
+        }
+        const s = STEPS[state.idx];
+        const doText = typeof s.do === "string" ? s.do : state.upgrade ? s.do.alu : s.do.stock;
+        const title = state.idx === 4 ? (state.upgrade ? "Put the aluminium shock on" : "Put the rebuilt shock on") : s.title;
+        body.innerHTML = `
+          <p class="eyebrow">Step ${state.idx + 1} of ${STEPS.length} &middot; about ${s.time}</p>
+          <h2>${title}</h2>
+          <p class="do">${doText}</p>
+          ${s.tools.length ? `<div class="kv">${s.tools.map((t) => `<span class="pill">${t}</span>`).join("")}</div>` : ""}
+          <div class="watch"><b>Watch for:</b> ${s.watch}</div>
+          <h3>Check before you go on</h3>
+          <ul class="checklist">${s.check.map((c) => `<li>${c}</li>`).join("")}</ul>
+          <h3>Parts in this step</h3>
+          <div class="partchips">${s.parts.filter((p) => p !== (state.upgrade ? "FTX6202" : "FTX6356") || state.idx !== 4).map((p) => `<button type="button" data-ftx="${p}">${p}</button>`).join("")}</div>`;
+        body.querySelectorAll("[data-ftx]").forEach((b) => b.addEventListener("click", () => selectFtx(b.dataset.ftx)));
+      }
+
+      function goStep(i, play) {
+        state.idx = i;
+        state.u = 0;
+        state.playing = false;
+        renderStepBody();
+        showTab("job");
+        const shot = i < 0 ? OVERVIEW_CAM : STEPS[i].cam;
+        flyTo(b2t(...shot[0]), b2t(...shot[1]));
+        applyPose();
+        if (play && i >= 0) {
+          if (reduced) { state.u = 1; applyPose(); } else state.playing = true;
+        }
+        updateReadouts();
+      }
+
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      $("play").addEventListener("click", () => {
+        if (state.idx < 0) { goStep(0, true); return; }
+        if (state.playing) { state.playing = false; } else {
+          if (state.u >= 0.999) state.u = 0;
+          state.playing = !reduced;
+          if (reduced) { state.u = 1; }
+        }
+        applyPose();
+      });
+      $("next").addEventListener("click", () => {
+        if (state.idx < STEPS.length - 1) goStep(state.idx + 1, true);
+      });
+      $("prev").addEventListener("click", () => {
+        goStep(state.idx - 1, true);
+      });
+      $("scrub").addEventListener("input", (e) => {
+        state.playing = false;
+        state.u = Number(e.target.value) / 1000;
+        applyPose();
+      });
+      $("explode").addEventListener("input", (e) => {
+        state.explode = Number(e.target.value) / 1000;
+        $("explode-out").textContent = Math.round(state.explode * 100) + "%";
+        applyPose();
+      });
+      function setMode(upgrade) {
+        state.upgrade = upgrade;
+        $("mode-stock").setAttribute("aria-pressed", String(!upgrade));
+        $("mode-alu").setAttribute("aria-pressed", String(upgrade));
+        tl = buildTimeline(upgrade);
+        renderStepBody();
+        applyPose();
+      }
+      $("mode-stock").addEventListener("click", () => setMode(false));
+      $("mode-alu").addEventListener("click", () => setMode(true));
+      $("reset").addEventListener("click", () => {
+        const shot = state.idx < 0 ? OVERVIEW_CAM : STEPS[state.idx].cam;
+        flyTo(b2t(...shot[0]), b2t(...shot[1]), 700);
+      });
+
+      // ------------------------------------------------------------------ tabs and part cards
+      function showTab(which) {
+        const job = which === "job";
+        $("tab-job").setAttribute("aria-selected", String(job));
+        $("tab-part").setAttribute("aria-selected", String(!job));
+        $("panel-job").hidden = !job;
+        $("panel-part").hidden = job;
+      }
+      $("tab-job").addEventListener("click", () => showTab("job"));
+      $("tab-part").addEventListener("click", () => showTab("part"));
+
+      const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const KIND = { shock: "Shock assembly", shock_sub: "Shock part", part: "Part", screw_mover: "Screw, moves in the job", screw_static: "Screw, drawn as a plain stand-in", prop: "Bench prop" };
+      const STEP_OF = { FTX6310B: [1, 8], FTX6315B: [1, 8], "M4 nut": [1, 8], FTX6224: [1, 8], FTX6513: [1, 8], FAST118: [2, 7], FTX6527: [3, 6], FTX6202: [4, 5], FTX6356: [5], FTX6200: [2, 7], FTX6320: [3, 6], FTX6506: [3, 5], FTX6508: [2, 5], FTX6204: [4], FTX6208: [4] };
+
+      function partCard(node) {
+        const m = metaByNode.get(node.name) || {};
+        const ftx = m.ftx || node.userData.ftx || node.name;
+        const shop = SHOP[ftx];
+        const guess = !!m.guess;
+        const html = [];
+        html.push(`<p class="eyebrow">${esc(KIND[m.kind] || "Part")}</p>`);
+        html.push(`<h2>${esc(m.label || node.name)}</h2>`);
+        html.push(`<p class="meta">${esc(ftx)}${m.page && m.page !== "-" ? " &middot; manual " + esc(m.page) : ""}</p>`);
+        html.push(`<span class="badge ${guess ? "guess" : "ok"}">${guess ? "Stand-in shape" : "Shape read from photos"}</span>`);
+        if (shop && !shop.unverifiedCode) html.push(`<span class="badge ok">Part number checked at the shop</span>`);
+        else if (shop) html.push(`<span class="badge guess">Shop listing found by name</span>`);
+        else html.push(`<span class="badge neutral">No part number</span>`);
+        if (m.note) html.push(`<p class="meta" style="margin-top:6px">${esc(m.note)}</p>`);
+        if (WHAT[ftx]) { html.push(`<h3>What it does</h3><p>${esc(WHAT[ftx])}</p>`); }
+        if (ftx === "M4 nut") html.push(`<h3>What it does</h3><p>Holds the wheel on the axle. A nylon-lock M4 nut is what owners and the manual parts list point to, but the exact part number was not confirmed.</p>`);
+        if (ftx === "tray") html.push(`<h3>What it is</h3><p>A bench tray with one labelled slot for each screw. It is not a truck part.</p>`);
+        if (m.kind === "screw_mover" || m.kind === "screw_static") {
+          html.push(`<h3>Screw</h3><p>M3 &times; ${m.length || ""} mm, 0.5 mm per turn.${m.turns ? " " + m.turns + " full turns to back it out of the plastic." : ""}${m.kind === "screw_static" ? " Drawn as a plain shank with no thread." : " Real thread, modelled with BoltFactory."}</p>`);
+        }
+        const st = STEP_OF[ftx];
+        if (st) html.push(`<h3>Used in job card</h3><p>Step ${st.join(" and ")}</p>`);
+        if (m.axis && m.kind !== "prop") {
+          html.push(`<h3>Comes off</h3><p>${esc(DIRWORD(m.axis))}${m.explode_mm ? ", " + m.explode_mm + " mm in the Explode view" : ""}.${m.kind === "shock_sub" ? " Along the shock's own length." : ""}</p>`);
+        }
+        const looks = LOOK[ftx];
+        if (looks) html.push(`<h3>Do not mix up with</h3>${looks.map(([c, t]) => `<p class="warn"><b>${esc(c)}</b> &mdash; ${esc(t)}</p>`).join("")}`);
+        const iss = ISSUES[ftx];
+        if (iss) html.push(`<h3>Known issues</h3>${iss.map((t) => `<p class="issue">${esc(t)}</p>`).join("")}<p class="src">From owner reports, review videos and shop Q&amp;A. Not tested by me.</p>`);
+        if (shop) {
+          html.push(`<h3>Where to buy</h3>`);
+          html.push(`<div class="shoprow"><span><a href="${shop.url}" target="_blank" rel="noopener">FTX shop</a> &middot; ${esc(shop.name)}</span><span class="px">${esc(shop.price || "")}</span><small>${esc(shop.stock)}</small></div>`);
+          (shop.alts || []).forEach(([n, p, u]) => html.push(`<div class="shoprow"><span><a href="${u}" target="_blank" rel="noopener">${esc(n)}</a></span><span class="px">${esc(p)}</span></div>`));
+          html.push(`<p class="src">Prices and stock read from the shop pages on ${CHECKED}. They change, so check before you order.</p>`);
+        }
+        html.push(`<div class="btn-row"><button type="button" class="btn ghost" id="pc-back">Back to the job</button><button type="button" class="btn primary" id="pc-fly">Show it</button></div>`);
+        return html.join("");
+      }
+
+      const partBody = $("part-body");
+      function ancestorMeta(o) {
+        while (o && o !== model) {
+          if (metaByNode.has(o.name)) return o;
+          o = o.parent;
+        }
+        return null;
+      }
+      function isVisible(o) {
+        for (let p = o; p; p = p.parent) if (!p.visible) return false;
+        return true;
+      }
+      function setSelected(node) {
+        if (state.selected) glow(state.selected, 0);
+        state.selected = node;
+        if (node) glow(node, 0.55);
+      }
+      function glow(node, k) {
+        node.traverse((o) => {
+          if (o.isMesh && o.material.emissive) {
+            o.material.emissive.set(0x2f6bdc).multiplyScalar(k);
+          }
+        });
+      }
+      function selectNode(node, fly = true) {
+        setSelected(node);
+        $("tip").classList.remove("on");
+        partBody.innerHTML = partCard(node);
+        showTab("part");
+        $("pc-back").addEventListener("click", () => { setSelected(null); showTab("job"); });
+        $("pc-fly").addEventListener("click", () => flyToNode(node));
+        if (fly) flyToNode(node);
+      }
+      function flyToNode(node) {
+        const box = new THREE.Box3().setFromObject(node);
+        if (box.isEmpty()) return;
+        const c = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3()).length();
+        const dist = Math.min(0.9, Math.max(0.13, size * 2.2));
+        const dir = camera.position.clone().sub(controls.target).normalize();
+        flyTo(c.clone().addScaledVector(dir, dist), c, 900);
+      }
+      function selectFtx(ftx) {
+        const cands = meta.filter((m) => m.ftx === ftx && m.kind !== "screw_mover" || (m.ftx === ftx && m.node.endsWith("_carrier")));
+        let node = null;
+        for (const m of cands) {
+          const n = nodeByName.get(m.node);
+          if (n && isVisible(n) && (m.kind === "shock" || m.kind === "part" || m.kind === "screw_mover" || m.kind === "screw_static" || m.kind === "shock_sub")) { node = n; if (m.kind !== "shock_sub") break; }
+        }
+        if (!node) {
+          const any = cands.map((m) => nodeByName.get(m.node)).find(Boolean);
+          node = any || null;
+        }
+        if (node) selectNode(node, true);
+      }
+
+      const ray = new THREE.Raycaster();
+      const ndc = new THREE.Vector2();
+      function pick(ev) {
+        const r = renderer.domElement.getBoundingClientRect();
+        ndc.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+        ray.setFromCamera(ndc, camera);
+        const hits = ray.intersectObject(model, true);
+        for (const h of hits) {
+          if (!isVisible(h.object)) continue;
+          const a = ancestorMeta(h.object);
+          if (a) return a;
+        }
+        return null;
+      }
+      let down = null;
+      renderer.domElement.addEventListener("pointerdown", (e) => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+      renderer.domElement.addEventListener("pointerup", (e) => {
+        if (!down) return;
+        const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
+        down = null;
+        if (moved > 5) return;
+        const a = pick(e);
+        if (a) selectNode(a, true);
+      });
+      const tip = $("tip");
+      let lastMove = 0;
+      renderer.domElement.addEventListener("pointermove", (e) => {
+        const now = performance.now();
+        if (e.buttons || now - lastMove < 70 || e.pointerType === "touch") return;
+        lastMove = now;
+        const a = pick(e);
+        view.classList.toggle("pick", !!a);
+        if (a) {
+          const m = metaByNode.get(a.name);
+          tip.textContent = `${m.ftx === "tray" ? "" : m.ftx + " · "}${m.label}`;
+          const r = view.getBoundingClientRect();
+          tip.style.left = e.clientX - r.left + "px";
+          tip.style.top = e.clientY - r.top + "px";
+          tip.classList.add("on");
+        } else tip.classList.remove("on");
+      });
+      renderer.domElement.addEventListener("pointerleave", () => tip.classList.remove("on"));
+
+      // ------------------------------------------------------------------ all-parts table
+      function buildTable() {
+        const rows = new Map();
+        for (const m of meta) {
+          if (m.kind === "prop" || (m.kind === "screw_mover" && m.node.endsWith("_carrier"))) continue;
+          if (m.group === "shock_alu" && m.kind === "shock_sub") continue;
+          const k = m.ftx + "|" + (m.kind === "shock_sub" ? m.label : m.label.replace(/ \((front|rear|outer|inner|tower|upright)\)$/, ""));
+          if (!rows.has(k)) rows.set(k, { ftx: m.ftx, label: m.label, n: 0, guess: false, node: m.node });
+          const r = rows.get(k);
+          r.n += 1;
+          r.guess = r.guess || m.guess;
+        }
+        const body = document.querySelector("#parts-table tbody");
+        [...rows.values()].sort((a, b) => a.ftx.localeCompare(b.ftx)).forEach((r) => {
+          const tr = document.createElement("tr");
+          tr.className = "row";
+          tr.tabIndex = 0;
+          const shop = SHOP[r.ftx];
+          const st = STEP_OF[r.ftx];
+          tr.innerHTML = `<td class="num"><b>${esc(r.ftx)}</b></td><td>${esc(r.label)}</td><td class="num hide-s">${r.n}</td><td class="hide-s">${st ? st.join(", ") : "&ndash;"}</td><td>${r.guess ? "Stand-in" : "From photos"}</td><td class="num hide-s">${shop && shop.price ? esc(shop.price) : "&ndash;"}</td>`;
+          const go = () => { const n = nodeByName.get(r.node); if (n) { window.scrollTo({ top: 0, behavior: "smooth" }); selectNode(n, true); } };
+          tr.addEventListener("click", go);
+          tr.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+          body.appendChild(tr);
+        });
+      }
+      buildTable();
+
+      function resize() {
+        const w = view.clientWidth;
+        const h = view.clientHeight;
+        if (!w || !h) return;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.fov = w / h < 1.2 ? 40 : 30;
+        camera.updateProjectionMatrix();
+      }
+      resize();
+      new ResizeObserver(resize).observe(view);
+
+      renderStepBody();
+      renderSteps();
+      if (params.has("upgrade")) setMode(state.upgrade);
+      if (params.has("step")) goStep(Math.max(-1, Math.min(STEPS.length - 1, Number(params.get("step")) - 1)), false);
+      if (params.has("u")) { state.u = Math.min(1, Math.max(0, Number(params.get("u")))); }
+      if (params.has("explode")) { $("explode").value = String(Math.round(state.explode * 1000)); $("explode-out").textContent = Math.round(state.explode * 100) + "%"; }
+      renderStepBody();
+      stepsEl.querySelectorAll("button").forEach((b) => b.classList.toggle("here", Number(b.dataset.i) === state.idx));
+      applyPose();
+      if (params.has("play") && state.idx >= 0) state.playing = true;
+      if (params.has("part")) selectFtx(params.get("part"));
+      if (params.has("shot") && !tween) {
+        const i = Number(params.get("shot"));
+        if (i >= 0) setShot(i === 0 ? OVERVIEW_CAM : STEPS[i - 1].cam);
+      }
+      $("controls").classList.add("disabled");
+      $("loading").hidden = true;
+
+      const demo = params.get("demo") === "1" || params.get("demo") === "true";
+      const filmLayer = $("film-layer");
+      const heroFilm = $("hero-film");
+      const gate = $("gate");
+      let filmDone = !demo;
+      let symptomPicked = !demo;
+
+      function playNarr(indices) {
+        let i = 0;
+        const next = () => {
+          if (i >= indices.length) return;
+          const a = new Audio("audio/narr-" + indices[i] + ".mp3");
+          i += 1;
+          a.addEventListener("ended", next);
+          a.play().catch(() => next());
+        };
+        next();
+      }
+
+      function endFilm() {
+        if (filmDone) return;
+        filmDone = true;
+        filmLayer.classList.add("off");
+        setTimeout(() => { filmLayer.hidden = true; gate.hidden = false; }, 680);
+      }
+
+      if (demo) {
+        heroFilm.src = "media/hero-film.mp4";
+        filmLayer.hidden = false;
+        heroFilm.addEventListener("ended", endFilm);
+        $("film-skip").addEventListener("click", () => { heroFilm.pause(); endFilm(); });
+        heroFilm.play().then(() => {
+          const opening = window.__narrPlay ? window.__narrPlay([0, 1, 2]) : Promise.reject();
+          opening.catch(() => {
+            const arm = () => {
+              document.removeEventListener("pointerdown", arm, true);
+              if (window.__narrCtx) window.__narrCtx.resume();
+              if (window.__narrPlay) window.__narrPlay([0, 1, 2]).catch(() => playNarr([0, 1, 2]));
+              else playNarr([0, 1, 2]);
+            };
+            document.addEventListener("pointerdown", arm, true);
+          });
+        }).catch(() => endFilm());
+      } else {
+        gate.hidden = true;
+        $("controls").classList.remove("disabled");
+      }
+
+      gate.querySelectorAll("button[data-symptom]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          gate.querySelectorAll("button[data-symptom]").forEach((b) => b.setAttribute("aria-pressed", "false"));
+          btn.setAttribute("aria-pressed", "true");
+          symptomPicked = true;
+          gate.hidden = true;
+          $("controls").classList.remove("disabled");
+          if (window.__narrStop) window.__narrStop();
+          playNarr(btn.dataset.symptom === "soft" ? [4, 5] : [6]);
+          flyTo(b2t(-250, -300, 180), b2t(-150, -50, 55));
+          if (state.idx < 0) goStep(0, true);
+        });
+      });
+
+      let last = performance.now();
+      function tick(now) {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        if (state.playing && state.idx >= 0) {
+          state.u += (dt * state.speed) / STEPS[state.idx].dur;
+          if (state.u >= 1) { state.u = 1; state.playing = false; }
+          applyPose();
+        }
+        if (tween) {
+          tween.t += dt * 1000;
+          const k = ease(Math.min(1, tween.t / tween.ms));
+          camera.position.lerpVectors(tween.p0, tween.p1, k);
+          controls.target.lerpVectors(tween.t0, tween.t1, k);
+          if (tween.t >= tween.ms) tween = null;
+        }
+        controls.update();
+        renderer.render(scene, camera);
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      window.__s2 = { state, goStep, applyPose, camera, controls, scene, renderer, setShot, selectFtx, nodeByName, get tl() { return tl; }, STEPS, missing };
+      document.body.dataset.ready = "1";
+    }
+
+    main().catch((err) => {
+      console.error(err);
+      $("loading").hidden = true;
+      $("view-error").hidden = false;
+    });
+  </script>
+</body>
+</html>

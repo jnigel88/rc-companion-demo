@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Front axle, pulled apart</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%23f4f3f0' width='16' height='16'/%3E%3Ccircle fill='%23141413' cx='8' cy='8' r='3.5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f3f0;
+      --ink: #141413;
+      --muted: #6b6860;
+      --line: #dcd9d3;
+      --card: #fbfaf8;
+      --serif: "Newsreader", Georgia, "Times New Roman", serif;
+      --sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 1.0625rem;
+      line-height: 1.55;
+    }
+    .shell { max-width: 1400px; margin: 0 auto; padding: 44px 32px 96px; }
+    .intro { margin-bottom: 28px; }
+    .intro h1 {
+      margin: 0 0 12px;
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(2.4rem, 4.6vw, 3.75rem);
+      line-height: 1.04;
+      letter-spacing: -0.03em;
+    }
+    .intro .lead { margin: 0; color: var(--muted); font-size: 1.15rem; max-width: 52rem; }
+
+    .demo {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 32px;
+      align-items: start;
+    }
+    .stage-col { min-width: 0; }
+    .view {
+      position: relative;
+      height: clamp(520px, 74vh, 820px);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--bg);
+      border: 1px solid var(--line);
+    }
+    .view canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+      cursor: grab;
+    }
+    .view canvas:active { cursor: grabbing; }
+
+    .leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+    .leaders line { stroke: #2b2a27; stroke-width: 1.1; stroke-linecap: round; }
+    .leaders polygon { fill: #2b2a27; }
+    .leaders .on line { stroke-width: 1.6; }
+    .callouts { position: absolute; inset: 0; pointer-events: none; }
+    .callout {
+      position: absolute;
+      left: 0;
+      top: 0;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #cfccc5;
+      border-radius: 999px;
+      box-shadow: 0 1px 2px rgba(20, 20, 19, 0.06), 0 6px 16px rgba(20, 20, 19, 0.07);
+      cursor: pointer;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform;
+    }
+    .callout.live { pointer-events: auto; }
+    .callout:hover { border-color: var(--ink); }
+    .callout.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+    .view-top, .view-bottom {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      pointer-events: none;
+    }
+    .view-top { top: 18px; }
+    .view-bottom { bottom: 18px; }
+    .view-bottom p { margin: 0; font-size: 0.85rem; color: var(--muted); }
+    .chip {
+      pointer-events: auto;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 8px 14px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .chip:hover { border-color: var(--ink); }
+    .chip[aria-pressed="false"] { color: var(--muted); }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      text-align: center;
+      pointer-events: none;
+    }
+    .overlay[hidden], .loading[hidden], .view-error[hidden] { display: none !important; }
+    .overlay p {
+      margin: 0;
+      max-width: 24rem;
+      font-family: var(--serif);
+      font-size: 1.75rem;
+      line-height: 1.25;
+    }
+    .overlay .sub {
+      display: block;
+      margin-top: 12px;
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    .loading, .view-error {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      text-align: center;
+      background: var(--bg);
+      color: var(--muted);
+    }
+
+    .controls { margin-top: 28px; }
+    .controls.disabled { opacity: 0.4; pointer-events: none; }
+    .slider-row { display: flex; align-items: center; gap: 20px; }
+    .end-label {
+      background: none;
+      border: 0;
+      padding: 0;
+      font: inherit;
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      color: var(--muted);
+      cursor: pointer;
+      min-width: 6.5rem;
+    }
+    .end-label:last-child { text-align: right; }
+    .end-label:hover, .end-label.here { color: var(--ink); }
+    input[type="range"] {
+      --p: 0%;
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1;
+      height: 44px;
+      background: transparent;
+      margin: 0;
+    }
+    input[type="range"]:focus { outline: none; }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 2px;
+      border-radius: 2px;
+      background: linear-gradient(to right, var(--ink) var(--p), #cfccc5 var(--p));
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      margin-top: -10px;
+      border-radius: 50%;
+      background: var(--ink);
+      border: 4px solid var(--bg);
+      box-shadow: 0 0 0 1px var(--ink);
+    }
+    input[type="range"]::-moz-range-track { height: 2px; background: #cfccc5; border: 0; }
+    input[type="range"]::-moz-range-progress { height: 2px; background: var(--ink); }
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--ink);
+      border: 4px solid var(--bg);
+      box-shadow: 0 0 0 1px var(--ink);
+    }
+    .caption { margin: 18px 0 0; font-size: 0.95rem; color: var(--muted); max-width: 44rem; }
+
+    .card {
+      position: sticky;
+      top: 24px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 28px 26px 26px;
+    }
+    .card .eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .card h2 {
+      margin: 0 0 4px;
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: 2.6rem;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+    .card .meta { margin: 0 0 20px; font-size: 0.88rem; color: var(--muted); min-height: 1.4em; }
+    .card h3 {
+      margin: 0 0 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .card p.body { margin: 0 0 16px; }
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
+    .btn {
+      font: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 13px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      border: 1px solid var(--ink);
+    }
+    .btn.primary { background: var(--ink); color: #fff; }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn:hover { opacity: 0.88; }
+    .spoken {
+      margin: 18px 0 0;
+      padding: 12px 14px;
+      min-height: 3.6rem;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .spoken.on { color: var(--ink); }
+    .speech-note { margin: 8px 0 0; font-size: 0.82rem; color: var(--muted); min-height: 1.2em; }
+
+    .facts { margin-top: 88px; padding-top: 36px; border-top: 1px solid var(--line); max-width: 46rem; }
+    .facts h2 { margin: 0 0 18px; font-family: var(--serif); font-weight: 400; font-size: 1.75rem; }
+    .facts ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+    .facts li { color: var(--muted); padding-left: 16px; border-left: 2px solid var(--line); }
+    .facts li strong { color: var(--ink); font-weight: 600; }
+
+    :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    @media (max-width: 1000px) {
+      .demo { grid-template-columns: 1fr; }
+      .card { position: static; }
+      .shell { padding: 48px 20px 72px; }
+    }
+    @media (max-width: 640px) {
+      .view { height: 62vh; min-height: 400px; }
+      .end-label { font-size: 1.1rem; min-width: 4.5rem; }
+      .card h2 { font-size: 2.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="intro">
+      <h1>The front axle, pulled apart</h1>
+      <p class="lead">Drag to turn it. Slide to Exploded and every part lifts into the air with a name on it. Click a name, or press Next part, to read one repair step.</p>
+    </header>
+
+    <div class="demo">
+      <div class="stage-col">
+        <div class="view" id="view">
+          <p class="loading" id="loading">Setting up the workshop…</p>
+          <p class="view-error" id="view-error" hidden>The 3D view did not start. Refresh the page. Chrome works best.</p>
+          <div class="overlay" id="building-overlay" hidden>
+            <p>The front axle model is still being built<span class="sub">The workshop is ready. The parts will appear here when the model files arrive.</span></p>
+          </div>
+          <svg class="leaders" id="leaders" aria-hidden="true"></svg>
+          <div class="callouts" id="callouts"></div>
+          <div class="view-top">
+            <span></span>
+            <button type="button" class="chip" id="sound-toggle" aria-pressed="true" aria-label="Sound on">Sound on</button>
+          </div>
+          <div class="view-bottom">
+            <p>Drag to orbit. Scroll to zoom.</p>
+            <button type="button" class="chip" id="reset">Reset view</button>
+          </div>
+        </div>
+
+        <div class="controls disabled" id="controls">
+          <div class="slider-row">
+            <button type="button" class="end-label here" id="go-together">Together</button>
+            <input id="pull" type="range" min="0" max="100" value="0" aria-label="From together to exploded" aria-valuetext="Together">
+            <button type="button" class="end-label" id="go-exploded">Exploded</button>
+          </div>
+          <p class="caption">Our own model of the front axle, colored like the original truck, not a scan and not FTX’s drawing.</p>
+        </div>
+      </div>
+
+      <aside>
+        <article class="card" aria-live="polite">
+          <p class="eyebrow" id="counter">Part 1 of 7</p>
+          <h2 id="part-name">Shock</h2>
+          <p class="meta" id="meta"></p>
+          <h3>What it is</h3>
+          <p class="body" id="what"></p>
+          <h3>Repair</h3>
+          <p class="body" id="repair"></p>
+          <div class="btn-row">
+            <button type="button" class="btn ghost" id="next">Next part</button>
+            <button type="button" class="btn primary" id="read">Read this step</button>
+          </div>
+          <p class="spoken" id="spoken">Press Read this step. The words stay here even if this browser cannot speak.</p>
+          <p class="speech-note" id="speech-note"></p>
+        </article>
+      </aside>
+    </div>
+
+    <section class="facts" aria-labelledby="facts-title">
+      <h2 id="facts-title">What the Carnage manual says</h2>
+      <ul>
+        <li><strong>Screws:</strong> page 11 says to use thread lock on replacement screws that go into metal threads.</li>
+        <li><strong>Shocks:</strong> page 11 says dirty running wears them out, and that oil and seals should be replaced to keep damping smooth. It gives no oil weight and no build order.</li>
+        <li><strong>Counts:</strong> the spare list gives screw sizes in bags of six. The drawings do not say how many go in one corner.</li>
+      </ul>
+    </section>
+  </div>
+
+  <noscript>Turn on JavaScript to use the 3D view.</noscript>
+
+  <script src="demo-sound.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+    const GLB_LEFT = "front-left.glb";
+    const GLB_RIGHT = "front-right.glb";
+    const SCREW_SECONDS = 0.7;
+    const EXPLODE_SECONDS = 2.6;
+
+    const LEFT_NAMES = [
+      "chassis", "bumper", "wheel_l", "hub_l", "knuckle_l", "lower_arm_l", "hinge_pin_l",
+      "shock_body_l", "shock_spring_l", "shock_shaft_l", "shock_cap_l",
+      "screw_l1", "screw_l2", "screw_l3", "screw_l4"
+    ];
+    const RIGHT_NAMES = [
+      "wheel_r", "hub_r", "knuckle_r", "lower_arm_r", "hinge_pin_r",
+      "shock_body_r", "shock_spring_r", "shock_shaft_r", "shock_cap_r",
+      "screw_r1", "screw_r2", "screw_r3", "screw_r4"
+    ];
+
+    const ORDER = ["shock", "arm", "pin", "wheel", "bumper", "screw", "chassis"];
+    const CALLOUT_NAME = {
+      wheel: "Wheel", arm: "Arm", shock: "Shock", pin: "Pin",
+      bumper: "Bumper", screw: "Screws", chassis: "Chassis"
+    };
+
+    const GUIDE = {
+      shock: {
+        name: "Shock",
+        meta: "Left and right corners",
+        what: "The spring and damper that stand between the chassis tower and the lower arm.",
+        repair: "Take the screws out first, then slide the bottom eye off its pin."
+      },
+      arm: {
+        name: "Arm",
+        meta: "Left and right corners",
+        what: "The lower wishbone. Its wide end hinges on the chassis and its outer end meets the hub carrier.",
+        repair: "With the shock free, slide the hinge pin out straight and the arm comes away toward the wheel."
+      },
+      pin: {
+        name: "Pin",
+        meta: "Left and right corners",
+        what: "The long hinge pin the inner end of the arm turns on.",
+        repair: "Pull it out along its own length. Do not pry it up."
+      },
+      wheel: {
+        name: "Wheel",
+        meta: "Left and right corners",
+        what: "The wheel, its hub, and the knuckle it turns on, shown together.",
+        repair: "Support the corner when the pin comes out so the knuckle does not drop."
+      },
+      bumper: {
+        name: "Bumper",
+        meta: "Front of the chassis",
+        what: "The front bumper and brace, a wide plastic bar at the nose.",
+        repair: "Pull it straight forward off the chassis once its screws are out."
+      },
+      screw: {
+        name: "Screws",
+        meta: "Eight in this model, four a side",
+        what: "The small screws that hold the axle together. The manual lists the sizes by bag, not by corner.",
+        repair: "Put each screw back in the hole it came from. Use thread lock if it goes into a metal thread."
+      },
+      chassis: {
+        name: "Chassis",
+        meta: "One piece",
+        what: "The main plate everything else bolts to.",
+        repair: "Leave it on the bench. The arms, shocks and bumper all come off it."
+      }
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const state = { t: 0, goal: 0, scrubbing: false, modelReady: false };
+    const selected = { part: "shock", screw: null };
+    const movers = [];
+    const screws = [];
+    const callouts = [];
+    const meshesByPart = {};
+    let soundOn = sessionStorage.getItem("rc-demo-sound") !== "off";
+    let lastWhoosh = -10;
+    let dirty = true;
+
+    function rcPlay(name) {
+      if (!soundOn || !window.RCSound || typeof window.RCSound.play !== "function") return;
+      try { window.RCSound.play(name); } catch (_) {}
+    }
+
+    function setSoundUi(on) {
+      soundOn = on;
+      sessionStorage.setItem("rc-demo-sound", on ? "on" : "off");
+      const btn = $("sound-toggle");
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.setAttribute("aria-label", on ? "Sound on" : "Sound off");
+      btn.textContent = on ? "Sound on" : "Sound off";
+    }
+
+    const clamp01 = (x) => Math.min(1, Math.max(0, x));
+    const ease = (x) => { x = clamp01(x); return x * x * (3 - 2 * x); };
+    const ramp = (a, b, t) => ease((t - a) / (b - a));
+
+    function screenToCanvasTexture(draw, w, h) {
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      draw(c.getContext("2d"), w, h);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 8;
+      return tex;
+    }
+
+    function buildStudio(scene, floorY) {
+      scene.background = new THREE.Color(0xf4f3f0);
+
+      const floorTex = screenToCanvasTexture((g, w, h) => {
+        g.fillStyle = "#e9e7e2";
+        g.fillRect(0, 0, w, h);
+        g.strokeStyle = "rgba(60, 56, 48, 0.10)";
+        g.lineWidth = 2;
+        const cells = 40;
+        for (let i = 0; i <= cells; i++) {
+          const p = (i / cells) * w;
+          g.beginPath(); g.moveTo(p, 0); g.lineTo(p, h); g.stroke();
+          g.beginPath(); g.moveTo(0, p); g.lineTo(w, p); g.stroke();
+        }
+        g.globalCompositeOperation = "destination-in";
+        const m = g.createRadialGradient(w / 2, h / 2, w * 0.08, w / 2, h / 2, w * 0.5);
+        m.addColorStop(0, "rgba(0,0,0,1)");
+        m.addColorStop(0.55, "rgba(0,0,0,0.85)");
+        m.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = m;
+        g.fillRect(0, 0, w, h);
+      }, 2048, 2048);
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(8, 8),
+        new THREE.MeshBasicMaterial({ map: floorTex, transparent: true, depthWrite: false, toneMapped: false })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = floorY;
+      floor.renderOrder = 0;
+      scene.add(floor);
+
+      const catcher = new THREE.Mesh(
+        new THREE.PlaneGeometry(8, 8),
+        new THREE.ShadowMaterial({ opacity: 0.2, depthWrite: false })
+      );
+      catcher.rotation.x = -Math.PI / 2;
+      catcher.position.y = floorY + 0.0002;
+      catcher.receiveShadow = true;
+      catcher.renderOrder = 1;
+      scene.add(catcher);
+
+      const blobTex = screenToCanvasTexture((g, w, h) => {
+        const r = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+        r.addColorStop(0, "rgba(20,18,14,0.8)");
+        r.addColorStop(0.45, "rgba(20,18,14,0.3)");
+        r.addColorStop(1, "rgba(20,18,14,0)");
+        g.fillStyle = r;
+        g.fillRect(0, 0, w, h);
+      }, 256, 256);
+      const blobMat = new THREE.MeshBasicMaterial({
+        map: blobTex, transparent: true, depthWrite: false, toneMapped: false,
+        polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2
+      });
+      function blob(x, z, sx, sz, opacity) {
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(sx, sz), blobMat.clone());
+        m.material.opacity = opacity;
+        m.rotation.x = -Math.PI / 2;
+        m.position.set(x, floorY + 0.0004, z);
+        m.renderOrder = 2;
+        m.userData.contactBlob = true;
+        scene.add(m);
+      }
+      blob(0, 0, 1.25, 0.8, 0.7);
+      [-0.45, 0.45].forEach((x) => blob(x, 0, 0.17, 0.3, 1));
+
+      scene.environment = new THREE.PMREMGenerator(window.__renderer).fromScene(new RoomEnvironment(), 0.03).texture;
+      scene.environmentIntensity = 1.05;
+
+      scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d4cc, 0.55));
+      const key = new THREE.DirectionalLight(0xfff0dc, 2.4);
+      key.position.set(0.6, 1.9, 1.1);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      key.shadow.camera.near = 0.2;
+      key.shadow.camera.far = 5;
+      key.shadow.camera.left = -1.1;
+      key.shadow.camera.right = 1.1;
+      key.shadow.camera.top = 1.1;
+      key.shadow.camera.bottom = -1.1;
+      key.shadow.bias = -0.0004;
+      key.shadow.normalBias = 0.004;
+      key.shadow.radius = 5;
+      key.shadow.blurSamples = 20;
+      scene.add(key);
+    }
+
+    function polishMaterials(root) {
+      const cache = new Map();
+      function upgrade(m) {
+        if (cache.has(m)) return cache.get(m);
+        const n = (m.name || "").toLowerCase();
+        let out = m;
+        if (/steel|silver/.test(n)) {
+          m.metalness = 1;
+          m.roughness = 0.17;
+          m.envMapIntensity = 1.5;
+        } else if (/spring/.test(n)) {
+          m.metalness = 0.9;
+          m.roughness = 0.26;
+          m.envMapIntensity = 1.3;
+        } else if (/nylon|plastic/.test(n)) {
+          out = new THREE.MeshPhysicalMaterial({
+            name: m.name, color: m.color.clone(), map: m.map,
+            metalness: 0, roughness: 0.42, clearcoat: 0.45, clearcoatRoughness: 0.32,
+            envMapIntensity: 1.25
+          });
+        } else if (/wheel/.test(n)) {
+          out = new THREE.MeshPhysicalMaterial({
+            name: m.name, color: m.color.clone(), map: m.map,
+            metalness: Math.max(m.metalness, 0.2), roughness: 0.34, clearcoat: 0.5, clearcoatRoughness: 0.28,
+            envMapIntensity: 1.3
+          });
+        } else if (/tire|rubber/.test(n)) {
+          m.roughness = 0.78;
+          m.envMapIntensity = 0.9;
+        }
+        cache.set(m, out);
+        return out;
+      }
+      root.traverse((o) => {
+        if (!o.isMesh) return;
+        o.material = Array.isArray(o.material) ? o.material.map(upgrade) : upgrade(o.material);
+      });
+    }
+
+    function screwOutDirection(node) {
+      node.geometry.computeBoundingBox();
+      const bb = node.geometry.boundingBox;
+      const size = bb.getSize(new THREE.Vector3());
+      const axis = size.x >= size.y && size.x >= size.z ? "x" : size.y >= size.z ? "y" : "z";
+      // The head is the short stub beside the origin; the shank runs the other way. Out of the hole is toward the head.
+      const sign = Math.abs(bb.max[axis]) < Math.abs(bb.min[axis]) ? 1 : -1;
+      const local = new THREE.Vector3();
+      local[axis] = sign;
+      return local.applyQuaternion(node.quaternion).normalize();
+    }
+
+    async function loadModels(scene) {
+      const loader = new GLTFLoader();
+      let left, right;
+      try {
+        const [a, b] = await Promise.all([loader.loadAsync(GLB_LEFT), loader.loadAsync(GLB_RIGHT)]);
+        left = a.scene;
+        right = b.scene;
+      } catch (_) {
+        return null;
+      }
+      left.position.set(0, 0, 0);
+      right.position.set(0, 0, 0);
+
+      const named = {};
+      [left, right].forEach((r) => r.traverse((o) => {
+        if (o.name && (LEFT_NAMES.includes(o.name) || RIGHT_NAMES.includes(o.name))) named[o.name] = o;
+      }));
+      for (const n of [...LEFT_NAMES, ...RIGHT_NAMES]) {
+        if (!named[n]) return null;
+      }
+
+      polishMaterials(left);
+      polishMaterials(right);
+      scene.add(left, right);
+      scene.updateMatrixWorld(true);
+
+      function tag(node, part, screw) {
+        node.traverse((o) => {
+          o.userData.part = part;
+          if (screw) o.userData.screw = screw;
+          if (o.isMesh) {
+            o.castShadow = true;
+            o.receiveShadow = true;
+            (meshesByPart[part] = meshesByPart[part] || []).push(o);
+          }
+        });
+      }
+      function mover(part, side, names, offset, start, end) {
+        const nodes = names.map((n) => named[n]);
+        nodes.forEach((n) => tag(n, part));
+        movers.push({
+          part, side, nodes,
+          rest: nodes.map((n) => n.position.clone()),
+          offset: new THREE.Vector3(...offset), start, end
+        });
+      }
+
+      tag(named.chassis, "chassis");
+      mover("bumper", 0, ["bumper"], [0, 0.34, 0.3], 0.42, 1);
+      [["l", -1], ["r", 1]].forEach(([k, s]) => {
+        mover("wheel", s, [`wheel_${k}`, `hub_${k}`, `knuckle_${k}`], [s * 0.2, 0.3, 0.06], 0.4, 0.95);
+        mover("arm", s, [`lower_arm_${k}`], [s * 0.08, 0.48, 0.1], 0.46, 1);
+        mover("pin", s, [`hinge_pin_${k}`], [s * 0.04, 0.64, 0.24], 0.42, 1);
+        mover("shock", s, [`shock_body_${k}`, `shock_spring_${k}`, `shock_shaft_${k}`, `shock_cap_${k}`], [s * 0.04, 0.8, 0], 0.5, 1);
+      });
+
+      const screwRise = { 1: 0.36, 2: 0.42, 3: 0.3, 4: 0.5 };
+      [["l", -1], ["r", 1]].forEach(([k, s]) => {
+        for (let i = 1; i <= 4; i++) {
+          const node = named[`screw_${k}${i}`];
+          tag(node, "screw", node.name);
+          screws.push({
+            node, side: s, index: i,
+            rest: node.position.clone(),
+            dir: screwOutDirection(node),
+            withdraw: 0.075,
+            rise: screwRise[i],
+            trigger: 0.03 + i * 0.012 + (s > 0 ? 0.006 : 0),
+            k: 0, was: 0
+          });
+        }
+      });
+
+      return { left, right, named };
+    }
+
+    function pose(t, forceScrewK) {
+      movers.forEach((m) => {
+        const k = ramp(m.start, m.end, t);
+        m.nodes.forEach((n, i) => n.position.copy(m.rest[i]).addScaledVector(m.offset, k));
+      });
+      screws.forEach((s) => {
+        const k = forceScrewK === undefined ? s.k : forceScrewK;
+        const out = ease(clamp01(k * 2));
+        const up = ease(clamp01(k * 2 - 1));
+        s.node.position.copy(s.rest).addScaledVector(s.dir, s.withdraw * out);
+        s.node.position.y += s.rise * up;
+      });
+    }
+
+    const anchorRay = new THREE.Raycaster();
+    const tmpBox = new THREE.Box3();
+    const tmpV = new THREE.Vector3();
+    const tmpV2 = new THREE.Vector3();
+
+    function meshesOf(entry) {
+      const out = [];
+      entry.parts.forEach((p) => (meshesByPart[p] || []).forEach((m) => {
+        if (entry.filter(m)) out.push(m);
+      }));
+      return out;
+    }
+
+    function updateAnchor(entry) {
+      const meshes = entry.meshes;
+      tmpBox.makeEmpty();
+      meshes.forEach((m) => tmpBox.expandByObject(m));
+      const c = tmpBox.getCenter(tmpV);
+      entry.labelPoint.copy(c).add(entry.offsetFor(tmpBox));
+      let best = null;
+      let bestD = Infinity;
+      meshes.forEach((m) => {
+        const mb = new THREE.Box3().setFromObject(m);
+        const aim = mb.getCenter(tmpV2);
+        const dir = aim.clone().sub(entry.labelPoint).normalize();
+        anchorRay.set(entry.labelPoint, dir);
+        const hit = anchorRay.intersectObject(m, false)[0];
+        if (hit && hit.distance < bestD) {
+          bestD = hit.distance;
+          best = hit.point.clone();
+        }
+      });
+      entry.anchor.copy(best || c);
+    }
+
+    function makeCallouts(layer, svg) {
+      const NS = "http://www.w3.org/2000/svg";
+      function add(entry) {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "callout";
+        el.textContent = entry.text;
+        el.addEventListener("click", () => select(entry.part, entry.screw || null));
+        layer.appendChild(el);
+        const g = document.createElementNS(NS, "g");
+        const line = document.createElementNS(NS, "line");
+        const head = document.createElementNS(NS, "polygon");
+        g.append(line, head);
+        svg.appendChild(g);
+        Object.assign(entry, {
+          el, g, line, head,
+          labelPoint: new THREE.Vector3(),
+          anchor: new THREE.Vector3(),
+          w: 0, h: 0
+        });
+        callouts.push(entry);
+      }
+      const all = () => true;
+      const sideOf = (s) => (m) => {
+        const nm = m.userData.screw || "";
+        return nm ? (s < 0 ? nm.startsWith("screw_l") : nm.startsWith("screw_r")) : true;
+      };
+      const per = (part, off) => [-1, 1].forEach((s) => {
+        const mv = movers.find((m) => m.part === part && m.side === s);
+        const nodeSet = new Set();
+        mv.nodes.forEach((n) => n.traverse((o) => nodeSet.add(o)));
+        add({
+          part, text: CALLOUT_NAME[part], parts: [part],
+          filter: (m) => nodeSet.has(m),
+          offsetFor: () => new THREE.Vector3(off[0] * s, off[1], off[2])
+        });
+      });
+      per("wheel", [0.22, 0.16, 0.12]);
+      per("arm", [0.1, 0.1, -0.24]);
+      per("pin", [0.22, 0.1, 0.16]);
+      per("shock", [0.22, 0.12, 0.0]);
+      add({
+        part: "bumper", text: "Bumper", parts: ["bumper"], filter: all,
+        offsetFor: () => new THREE.Vector3(0, 0.18, 0.32)
+      });
+      add({
+        part: "chassis", text: "Chassis", parts: ["chassis"], filter: all,
+        offsetFor: () => new THREE.Vector3(0.5, -0.02, 0.1)
+      });
+      [-1, 1].forEach((s) => add({
+        part: "screw", text: "Screws", parts: ["screw"], group: true, side: s,
+        filter: sideOf(s),
+        offsetFor: () => new THREE.Vector3(s * 0.12, -0.02, 0.32)
+      }));
+      screws.forEach((sc) => add({
+        part: "screw", screw: sc.node.name, single: true,
+        text: `Screw ${sc.side < 0 ? "L" : "R"}${sc.index}`, parts: ["screw"],
+        filter: (m) => m.userData.screw === sc.node.name,
+        offsetFor: () => new THREE.Vector3(sc.side * 0.08, 0.09, 0.14)
+      }));
+      callouts.forEach((c) => { c.meshes = meshesOf(c); });
+    }
+
+    function calloutOpacity(c, t, meanScrew) {
+      const exploded = ramp(0.55, 0.9, t);
+      if (c.single) return selected.screw === c.screw ? 1 : 0;
+      if (c.part === "screw") {
+        if (selected.screw) return 0;
+        return selected.part === "screw" ? 1 : Math.min(exploded, ease(meanScrew));
+      }
+      return selected.part === c.part ? 1 : exploded;
+    }
+
+    function drawCallouts(camera, view, t, meanScrew) {
+      const W = view.clientWidth;
+      const H = view.clientHeight;
+      const items = [];
+      callouts.forEach((c) => {
+        const op = calloutOpacity(c, t, meanScrew);
+        c.el.style.opacity = op.toFixed(3);
+        c.g.style.opacity = op.toFixed(3);
+        c.el.classList.toggle("live", op > 0.5);
+        c.el.tabIndex = op > 0.5 ? 0 : -1;
+        const on = op > 0.5 && selected.part === c.part && (c.single ? selected.screw === c.screw : !selected.screw);
+        c.el.classList.toggle("on", on);
+        c.g.classList.toggle("on", on);
+        if (op < 0.02) {
+          c.g.style.display = "none";
+          return;
+        }
+        if (!c.w) { c.w = c.el.offsetWidth; c.h = c.el.offsetHeight; }
+        const L = tmpV.copy(c.labelPoint).project(camera);
+        const A = tmpV2.copy(c.anchor).project(camera);
+        const m = 12;
+        items.push({
+          c,
+          x: Math.min(W - m - c.w / 2, Math.max(m + c.w / 2, (L.x * 0.5 + 0.5) * W)),
+          y: Math.min(H - 56 - c.h / 2, Math.max(m + 44 + c.h / 2, (-L.y * 0.5 + 0.5) * H)),
+          ax: (A.x * 0.5 + 0.5) * W,
+          ay: (-A.y * 0.5 + 0.5) * H
+        });
+      });
+
+      // Pills that land on top of each other in this view are eased apart so every name stays readable.
+      for (let pass = 0; pass < 8; pass++) {
+        for (let i = 0; i < items.length; i++) {
+          for (let j = i + 1; j < items.length; j++) {
+            const p = items[i];
+            const q = items[j];
+            const ox = (p.c.w + q.c.w) / 2 + 6 - Math.abs(p.x - q.x);
+            const oy = (p.c.h + q.c.h) / 2 + 6 - Math.abs(p.y - q.y);
+            if (ox > 0 && oy > 0) {
+              const dir = p.y <= q.y ? 1 : -1;
+              p.y -= (oy / 2) * dir;
+              q.y += (oy / 2) * dir;
+            }
+          }
+        }
+      }
+
+      items.forEach(({ c, x, y, ax, ay }) => {
+        c.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
+        const dx = ax - x;
+        const dy = ay - y;
+        const len = Math.hypot(dx, dy);
+        const ux = dx / (len || 1);
+        const uy = dy / (len || 1);
+        const edge = Math.min((c.w / 2 + 3) / Math.abs(ux || 1e-6), (c.h / 2 + 3) / Math.abs(uy || 1e-6));
+        if (len < edge + 6) {
+          c.g.style.display = "none";
+          return;
+        }
+        c.g.style.display = "";
+        const hl = 10;
+        const bx = ax - ux * hl;
+        const by = ay - uy * hl;
+        c.line.setAttribute("x1", (x + ux * edge).toFixed(1));
+        c.line.setAttribute("y1", (y + uy * edge).toFixed(1));
+        c.line.setAttribute("x2", bx.toFixed(1));
+        c.line.setAttribute("y2", by.toFixed(1));
+        const nx = -uy * 3.6;
+        const ny = ux * 3.6;
+        c.head.setAttribute("points", `${ax.toFixed(1)},${ay.toFixed(1)} ${(bx + nx).toFixed(1)},${(by + ny).toFixed(1)} ${(bx - nx).toFixed(1)},${(by - ny).toFixed(1)}`);
+      });
+    }
+
+    function select(part, screw) {
+      if (!GUIDE[part]) return;
+      const changed = selected.part !== part || selected.screw !== (screw || null);
+      selected.part = part;
+      selected.screw = screw || null;
+      const g = GUIDE[part];
+      $("part-name").textContent = screw ? "Screw" : g.name;
+      $("meta").textContent = screw
+        ? `${screw.startsWith("screw_l") ? "Left" : "Right"} corner, number ${screw.slice(-1)} of 4`
+        : g.meta;
+      $("what").textContent = g.what;
+      $("repair").textContent = g.repair;
+      $("counter").textContent = `Part ${ORDER.indexOf(part) + 1} of ${ORDER.length}`;
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      $("spoken").textContent = "Press Read this step. The words stay here even if this browser cannot speak.";
+      $("spoken").classList.remove("on");
+      $("speech-note").textContent = "";
+      if (changed) rcPlay("click");
+    }
+
+    function nextPart() {
+      select(ORDER[(ORDER.indexOf(selected.part) + 1) % ORDER.length], null);
+    }
+
+    function readStep() {
+      const g = GUIDE[selected.part];
+      const name = selected.screw ? "Screw" : g.name;
+      const text = `${name}. ${g.what} ${g.repair}`;
+      const spoken = $("spoken");
+      spoken.textContent = text;
+      spoken.classList.add("on");
+      const note = $("speech-note");
+      if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+        note.textContent = "This browser cannot speak. The words are above.";
+        return;
+      }
+      try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "en-US";
+        u.rate = 0.94;
+        u.onstart = () => { note.textContent = "Speaking…"; };
+        u.onend = () => { note.textContent = "Spoken. The words stay above."; };
+        u.onerror = () => { note.textContent = "No sound came out. The words are above."; };
+        window.speechSynthesis.speak(u);
+      } catch (_) {
+        note.textContent = "This browser cannot speak. The words are above.";
+      }
+    }
+
+    async function main() {
+      if (document.fonts && document.fonts.ready) {
+        await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1200))]);
+      }
+      const view = $("view");
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      window.__renderer = renderer;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.NeutralToneMapping;
+      renderer.toneMappingExposure = 1;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.VSMShadowMap;
+      view.insertBefore(renderer.domElement, view.firstChild);
+      renderer.domElement.setAttribute("aria-label", "The front axle on a white workshop floor. Drag to orbit. Click a part or its name.");
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(32, 1, 0.02, 30);
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.07;
+      controls.enablePan = false;
+      controls.minPolarAngle = 0.2;
+      controls.maxPolarAngle = 1.38;
+
+      setSoundUi(soundOn);
+      $("sound-toggle").addEventListener("click", () => setSoundUi(!soundOn));
+
+      const models = await loadModels(scene);
+      let floorY = 0;
+      if (models) {
+        tmpBox.makeEmpty();
+        tmpBox.expandByObject(models.left).expandByObject(models.right);
+        floorY = tmpBox.min.y - 0.0003;
+      }
+      buildStudio(scene, floorY);
+
+      const frames = { together: null, exploded: null };
+      let autoFrame = true;
+      const dirVec = new THREE.Vector3(0.5, 0.42, 0.78).normalize();
+
+      function measure(t, k) {
+        pose(t, k);
+        scene.updateMatrixWorld(true);
+        const b = new THREE.Box3();
+        b.expandByObject(models.left).expandByObject(models.right);
+        const sphere = b.getBoundingSphere(new THREE.Sphere());
+        return { center: sphere.center.clone(), radius: sphere.radius };
+      }
+      function fitDistance(radius) {
+        const v = THREE.MathUtils.degToRad(camera.fov) / 2;
+        const h = Math.atan(Math.tan(v) * camera.aspect);
+        return (radius * 0.8) / Math.sin(Math.min(v, h));
+      }
+      function computeFrames() {
+        if (!models) return;
+        frames.together = measure(0, 0);
+        frames.exploded = measure(1, 1);
+        pose(state.t);
+      }
+
+      function resize() {
+        const w = view.clientWidth;
+        const h = view.clientHeight;
+        if (!w || !h) return;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h, false);
+        $("leaders").setAttribute("viewBox", `0 0 ${w} ${h}`);
+        computeFrames();
+        dirty = true;
+      }
+      resize();
+      new ResizeObserver(resize).observe(view);
+
+      const params = new URLSearchParams(location.search);
+      if (models) {
+        $("building-overlay").hidden = true;
+        $("controls").classList.remove("disabled");
+        makeCallouts($("callouts"), $("leaders"));
+        const t0 = params.has("pull") ? clamp01(Number(params.get("pull")) / 100) : 0;
+        state.t = state.goal = t0;
+        screws.forEach((s) => { s.k = t0 >= s.trigger ? 1 : 0; s.was = s.k; });
+        computeFrames();
+        const f = frames.together;
+        camera.position.copy(f.center).addScaledVector(dirVec, fitDistance(f.radius));
+        controls.target.copy(f.center);
+        if (params.has("az") || params.has("el")) {
+          const az = THREE.MathUtils.degToRad(Number(params.get("az") || 33));
+          const el = THREE.MathUtils.degToRad(Number(params.get("el") || 19));
+          dirVec.set(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el));
+          camera.position.copy(f.center).addScaledVector(dirVec, fitDistance(f.radius));
+        }
+        controls.update();
+        if (params.has("sel")) select(params.get("sel"), params.get("screw"));
+      } else {
+        $("building-overlay").hidden = false;
+        scene.traverse((o) => { if (o.userData.contactBlob) o.visible = false; });
+        camera.position.set(1.4, 0.8, 1.7);
+        controls.target.set(0, 0.1, 0);
+        controls.update();
+      }
+      $("pull").disabled = !models;
+
+      const slider = $("pull");
+      function syncSliderUi() {
+        const pct = Math.round(state.t * 100);
+        slider.value = String(pct);
+        slider.style.setProperty("--p", pct + "%");
+        slider.setAttribute("aria-valuetext", state.t < 0.04 ? "Together" : state.t > 0.96 ? "Exploded" : "Part way");
+        $("go-together").classList.toggle("here", state.t < 0.04);
+        $("go-exploded").classList.toggle("here", state.t > 0.96);
+      }
+      syncSliderUi();
+
+      slider.addEventListener("input", () => {
+        state.scrubbing = true;
+        state.t = state.goal = Number(slider.value) / 100;
+        dirty = true;
+        syncSliderUi();
+      });
+      slider.addEventListener("change", () => { state.scrubbing = false; });
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function goTo(v) {
+        if (reduced) { state.t = state.goal = v; dirty = true; syncSliderUi(); return; }
+        state.goal = v;
+      }
+      $("go-together").addEventListener("click", () => goTo(0));
+      $("go-exploded").addEventListener("click", () => goTo(1));
+      $("reset").addEventListener("click", () => {
+        autoFrame = true;
+        dirVec.set(0.5, 0.42, 0.78).normalize();
+        const f = frames.together;
+        camera.position.copy(f.center).addScaledVector(dirVec, fitDistance(f.radius));
+        controls.target.copy(f.center);
+        dirty = true;
+      });
+      $("next").addEventListener("click", nextPart);
+      $("read").addEventListener("click", readStep);
+
+      renderer.domElement.addEventListener("wheel", () => { autoFrame = false; }, { passive: true });
+      const touches = new Set();
+      renderer.domElement.addEventListener("pointerdown", (e) => {
+        touches.add(e.pointerId);
+        if (touches.size > 1) autoFrame = false;
+      });
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      let down = null;
+      renderer.domElement.addEventListener("pointerdown", (e) => { down = { x: e.clientX, y: e.clientY }; });
+      renderer.domElement.addEventListener("pointerup", (e) => {
+        touches.delete(e.pointerId);
+        if (!down) return;
+        const dx = e.clientX - down.x;
+        const dy = e.clientY - down.y;
+        down = null;
+        if (dx * dx + dy * dy > 36 || !models) return;
+        const rect = renderer.domElement.getBoundingClientRect();
+        pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(pointer, camera);
+        for (const hit of raycaster.intersectObjects([models.left, models.right], true)) {
+          const part = hit.object.userData.part;
+          if (part) { select(part, hit.object.userData.screw || null); break; }
+        }
+      });
+      renderer.domElement.addEventListener("pointercancel", (e) => touches.delete(e.pointerId));
+
+      $("loading").hidden = true;
+
+      const offsetBefore = new THREE.Vector3();
+      let last = performance.now();
+      function tick(now) {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+
+        if (models) {
+          if (!state.scrubbing && state.t !== state.goal) {
+            const step = dt / EXPLODE_SECONDS;
+            state.t = state.goal > state.t ? Math.min(state.goal, state.t + step) : Math.max(state.goal, state.t - step);
+            dirty = true;
+            syncSliderUi();
+          }
+          if (dirty && now / 1000 - lastWhoosh > 0.3 && (state.t !== state.goal || state.scrubbing)) {
+            rcPlay("whoosh");
+            lastWhoosh = now / 1000;
+          }
+          let meanScrew = 0;
+          screws.forEach((s) => {
+            const target = state.t >= s.trigger ? 1 : 0;
+            if (s.k !== target) {
+              const step = dt / SCREW_SECONDS;
+              s.k = target > s.k ? Math.min(1, s.k + step) : Math.max(0, s.k - step);
+              dirty = true;
+            }
+            if (s.was < 0.5 && s.k >= 0.5) rcPlay("tick");
+            s.was = s.k;
+            meanScrew += s.k / screws.length;
+          });
+          if (dirty) {
+            pose(state.t);
+            scene.updateMatrixWorld(true);
+            callouts.forEach(updateAnchor);
+            dirty = false;
+          }
+          if (autoFrame) {
+            const a = frames.together;
+            const b = frames.exploded;
+            const e = ease(state.t);
+            const center = a.center.clone().lerp(b.center, e);
+            const dist = THREE.MathUtils.lerp(fitDistance(a.radius), fitDistance(b.radius), e);
+            offsetBefore.copy(camera.position).sub(controls.target).normalize();
+            controls.target.lerp(center, 0.12);
+            const cur = camera.position.distanceTo(controls.target);
+            const next = cur + (dist - cur) * 0.12;
+            camera.position.copy(controls.target).addScaledVector(offsetBefore, next);
+          }
+          controls.update();
+          renderer.render(scene, camera);
+          drawCallouts(camera, view, state.t, meanScrew);
+        } else {
+          controls.update();
+          renderer.render(scene, camera);
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      document.body.dataset.ready = "1";
+    }
+
+    main().catch((err) => {
+      console.error(err);
+      $("loading").hidden = true;
+      $("view-error").hidden = false;
+    });
+  </script>
+</body>
+</html>

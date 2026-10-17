@@ -1,0 +1,1381 @@
+[
+ {
+  "ftx": "FTX6512",
+  "label": "Upper O-ring (blue)",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 21.6,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6512_oring",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6508",
+  "label": "Ball C, brass flanged bushing in the top eye",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 43.2,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6508_bushing",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6506",
+  "label": "Ball A, brass ball in the lower eye",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -42.3,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6506_ball",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6500",
+  "label": "Shock ball end, neck",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -35.1,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6500_neck",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6500",
+  "label": "Shock ball end, lower rod end",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -42.3,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6500_eye",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6212",
+  "label": "Adjust ring (blue)",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 24.3,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6212_ring",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6212",
+  "label": "Lower spring cup",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -31.1,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6212_cup",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6211",
+  "label": "Lower cap washer",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -3.6,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6211_washer",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6211",
+  "label": "Shock lower cap (blue)",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -7.2,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6211_nut",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6210",
+  "label": "Shock upper cap, black top",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 40.5,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6210_neck",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6210",
+  "label": "Shock upper cap, top eye",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 43.2,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6210_eye",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6210",
+  "label": "Shock upper cap (blue hex)",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 31.5,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6210_cap",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6208",
+  "label": "Front shock body",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 8.1,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6208_body",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6206",
+  "label": "Shaft and piston set",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -16.2,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6206_shaft",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6204",
+  "label": "Front shock spring",
+  "page": "p23",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -4.5,
+  "step": 4,
+  "guess": false,
+  "kind": "shock_sub",
+  "group": "shock_stock",
+  "note": "",
+  "node": "FTX6204_spring",
+  "local": true,
+  "assembly": "FTX6202"
+ },
+ {
+  "ftx": "FTX6202",
+  "label": "Front shock, complete (stock)",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 40,
+  "step": 4,
+  "guess": false,
+  "kind": "shock",
+  "group": "shock_stock",
+  "note": "slides off along the eye axis once both screws are out",
+  "node": "shock_stock_FTX6202"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Upper O-ring (blue) (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 21.6,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6512_oring",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Ball C, brass flanged bushing in the top eye (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 43.2,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6508_bushing",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Ball A, brass ball in the lower eye (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -42.3,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6506_ball",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Shock ball end, neck (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -35.1,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6500_neck",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Shock ball end, lower rod end (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -42.3,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6500_eye",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Adjust ring (blue) (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 24.3,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6212_ring",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Lower spring cup (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -31.1,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6212_cup",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Lower cap washer (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -3.6,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6211_washer",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Shock lower cap (blue) (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -7.2,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6211_nut",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Shock upper cap, black top (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 40.5,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6210_neck",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Shock upper cap, top eye (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 43.2,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6210_eye",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Shock upper cap (blue hex) (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 31.5,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6210_cap",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Front shock body (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 8.1,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6208_body",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Shaft and piston set (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -16.2,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6206_shaft",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Front shock spring (aluminium version)",
+  "page": "p25",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": -4.5,
+  "step": 5,
+  "guess": true,
+  "kind": "shock_sub",
+  "group": "shock_alu",
+  "note": "Shape is the stock shock recoloured. The real FTX6356 was not photographed.",
+  "node": "FTX6356_FTX6204_spring",
+  "local": true,
+  "assembly": "FTX6356"
+ },
+ {
+  "ftx": "FTX6356",
+  "label": "Aluminium front shock (upgrade)",
+  "page": "p25",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 40,
+  "step": 5,
+  "guess": true,
+  "kind": "shock",
+  "group": "shock_alu",
+  "note": "Upgrade part. Shop Q&A: 95 mm bolt to bolt, comes oil filled with 35 wt oil.",
+  "node": "shock_alu_FTX6356"
+ },
+ {
+  "ftx": "FTX6225",
+  "label": "Gearbox housing (stand-in block)",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   -1
+  ],
+  "explode_mm": 0,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "chassis",
+  "note": "Stand-in block. The real housing is a clamshell with a different outline.",
+  "node": "FTX6225_gearbox_housing"
+ },
+ {
+  "ftx": "FTX6322",
+  "label": "Front CVD driveshaft",
+  "page": "p24",
+  "axis": [
+   -1,
+   0,
+   0
+  ],
+  "explode_mm": 40,
+  "step": 0,
+  "guess": false,
+  "kind": "part",
+  "group": "drive",
+  "note": "Cup, rod and M4 end drawn as one piece. Inner joint is hidden inside the gearbox.",
+  "node": "FTX6322_cvd"
+ },
+ {
+  "ftx": "FTX6220",
+  "label": "Front suspension holder (front)",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 30,
+  "step": 0,
+  "guess": false,
+  "kind": "part",
+  "group": "chassis",
+  "note": "Holders are sold as a 2-pack.",
+  "node": "FTX6220_holder_front"
+ },
+ {
+  "ftx": "FTX6220",
+  "label": "Front suspension holder (rear)",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 30,
+  "step": 0,
+  "guess": false,
+  "kind": "part",
+  "group": "chassis",
+  "note": "",
+  "node": "FTX6220_holder_rear"
+ },
+ {
+  "ftx": "FTX6223",
+  "label": "Hinge pin, front (outer pin)",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 45,
+  "step": 0,
+  "guess": false,
+  "kind": "part",
+  "group": "chassis",
+  "note": "Shop pack FTX6223 holds the outer and inner pin for one arm. The manual prints FTX6336 (long and short pins) for the same job.",
+  "node": "FTX6223_hingepin_front"
+ },
+ {
+  "ftx": "FTX6223",
+  "label": "Hinge pin, rear (inner pin)",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 45,
+  "step": 0,
+  "guess": false,
+  "kind": "part",
+  "group": "chassis",
+  "note": "",
+  "node": "FTX6223_hingepin_rear"
+ },
+ {
+  "ftx": "FTX6200",
+  "label": "Front shock tower",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 70,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "chassis",
+  "note": "Outline is read from the manual drawing. Upgrade: FTX6351 carbon tower.",
+  "node": "FTX6200_tower"
+ },
+ {
+  "ftx": "FTX6324N",
+  "label": "Front bumper, updated (simplified)",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 95,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "chassis",
+  "note": "Block stand-in. The real bumper is curved with a lip.",
+  "node": "FTX6324N_bumper"
+ },
+ {
+  "ftx": "FTX6320",
+  "label": "Front lower suspension arm",
+  "page": "p24",
+  "axis": [
+   -1,
+   0,
+   0
+  ],
+  "explode_mm": 60,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "suspension",
+  "note": "Outline from the manual drawing. The shock lug is drawn on the rear leg.",
+  "node": "FTX6320_lower_arm"
+ },
+ {
+  "ftx": "FTX6216",
+  "label": "Upright (steering knuckle)",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 45,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "suspension",
+  "note": "Block with a bore and an ear for the upper arm. Real outline is rounder.",
+  "node": "FTX6216_upright"
+ },
+ {
+  "ftx": "FTBB120",
+  "label": "Wheel bearing 10x5x4 (outer)",
+  "page": "p24",
+  "axis": [
+   -1,
+   0,
+   0
+  ],
+  "explode_mm": 28,
+  "step": 0,
+  "guess": false,
+  "kind": "part",
+  "group": "suspension",
+  "note": "p24 prints FTBB16 (10X5X4); the spare-parts list calls it FTBB120.",
+  "node": "FTBB120_bearing_outer"
+ },
+ {
+  "ftx": "FTBB120",
+  "label": "Wheel bearing 10x5x4 (inner)",
+  "page": "p24",
+  "axis": [
+   1,
+   0,
+   0
+  ],
+  "explode_mm": 28,
+  "step": 0,
+  "guess": false,
+  "kind": "part",
+  "group": "suspension",
+  "note": "",
+  "node": "FTBB120_bearing_inner"
+ },
+ {
+  "ftx": "FTX6215",
+  "label": "Steering knuckle arm",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 55,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "suspension",
+  "note": "Plate with a rear tab for the steering link. Real shape is cranked.",
+  "node": "FTX6215_knuckle_arm"
+ },
+ {
+  "ftx": "FTX6224",
+  "label": "Wheel hub, 12 mm hex",
+  "page": "p24",
+  "axis": [
+   -1,
+   0,
+   0
+  ],
+  "explode_mm": 80,
+  "step": 0,
+  "guess": false,
+  "kind": "part",
+  "group": "drive",
+  "note": "Sold as a 4-pack.",
+  "node": "FTX6224_hub"
+ },
+ {
+  "ftx": "FTX6513",
+  "label": "Drive pin 10x2",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 40,
+  "step": 0,
+  "guess": false,
+  "kind": "part",
+  "group": "drive",
+  "note": "Sits across the axle end inside the hex hub. Lookalike: FTX6514 is 11x2.",
+  "node": "FTX6513_pin"
+ },
+ {
+  "ftx": "FTX6223",
+  "label": "Hinge pin, outer (arm to upright)",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   -1
+  ],
+  "explode_mm": 45,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "suspension",
+  "note": "FTX6223 is sold as one outer and one inner pin per set. Which pin goes where is read from the drawing. The manual also prints FTX6530 near this joint; the shop sells it as a 3x4 self-tapping ring screw, so it is not modelled.",
+  "node": "FTX6223_hingepin_outer"
+ },
+ {
+  "ftx": "FTX6507",
+  "label": "Ball B (tower end)",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 40,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "suspension",
+  "note": "Which end takes Ball A and which Ball B is read from the drawing.",
+  "node": "FTX6507_ball_tower"
+ },
+ {
+  "ftx": "FTX6506",
+  "label": "Ball A (upright end)",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 40,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "suspension",
+  "note": "Which end takes Ball A and which Ball B is read from the drawing.",
+  "node": "FTX6506_ball_upright"
+ },
+ {
+  "ftx": "FTX6327",
+  "label": "Front upper suspension arm",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 30,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "suspension",
+  "note": "Straight rod stand-in; the real arm is a moulded turnbuckle link. Blue version: FTX6327B.",
+  "node": "FTX6327_upper_arm"
+ },
+ {
+  "ftx": "FTX6502",
+  "label": "Rod end (tower)",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 55,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "suspension",
+  "note": "Steering linkage ball end, 6 per pack.",
+  "node": "FTX6502_end_tower"
+ },
+ {
+  "ftx": "FTX6502",
+  "label": "Rod end (upright)",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 55,
+  "step": 0,
+  "guess": true,
+  "kind": "part",
+  "group": "suspension",
+  "note": "Steering linkage ball end, 6 per pack.",
+  "node": "FTX6502_end_upright"
+ },
+ {
+  "ftx": "FTX6536",
+  "label": "Holder screw, front",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 70,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "Plain-shank stand-in: no thread, length read from the BOM.",
+  "node": "FTX6536_front_a",
+  "length": 10,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6536",
+  "label": "Holder screw, rear",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 70,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "Plain-shank stand-in: no thread, length read from the BOM.",
+  "node": "FTX6536_rear_a",
+  "length": 10,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6536",
+  "label": "Holder screw, front",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 70,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "Plain-shank stand-in: no thread, length read from the BOM.",
+  "node": "FTX6536_front_b",
+  "length": 10,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6536",
+  "label": "Holder screw, rear",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 70,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "Plain-shank stand-in: no thread, length read from the BOM.",
+  "node": "FTX6536_rear_b",
+  "length": 10,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6526",
+  "label": "Bumper screw",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 125,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "Plain-shank stand-in: no thread, length read from the BOM.",
+  "node": "FTX6526_bumper_0",
+  "length": 10,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6526",
+  "label": "Bumper screw",
+  "page": "p24",
+  "axis": [
+   0,
+   1,
+   0
+  ],
+  "explode_mm": 125,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "Plain-shank stand-in: no thread, length read from the BOM.",
+  "node": "FTX6526_bumper_1",
+  "length": 10,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6537",
+  "label": "Tower foot screw, flat head M3x12",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 95,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "The manual prints FTX6537 (M3X12). The shop sells it as a flat head hex.",
+  "node": "FTX6537_tower_0",
+  "length": 12,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6537",
+  "label": "Tower foot screw, flat head M3x12",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 95,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "The manual prints FTX6537 (M3X12). The shop sells it as a flat head hex.",
+  "node": "FTX6537_tower_1",
+  "length": 12,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FAST114",
+  "label": "Knuckle arm screw, cap head M3x8",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 75,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "The manual prints FAST114 (M3X8).",
+  "node": "FAST114_knuckle_0",
+  "length": 8,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FAST114",
+  "label": "Knuckle arm screw, cap head M3x8",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 75,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "The manual prints FAST114 (M3X8).",
+  "node": "FAST114_knuckle_1",
+  "length": 8,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6535",
+  "label": "Ball screw, tower end (flat head M3x8)",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   -1
+  ],
+  "explode_mm": 60,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "Plain-shank stand-in: no thread, length read from the BOM.",
+  "node": "FTX6535_screw_tower",
+  "length": 8,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6537",
+  "label": "Ball screw, upright end (flat head M3x12)",
+  "page": "p24",
+  "axis": [
+   0,
+   0,
+   -1
+  ],
+  "explode_mm": 60,
+  "step": 0,
+  "guess": true,
+  "kind": "screw_static",
+  "group": "fasteners",
+  "note": "Plain-shank stand-in: no thread, length read from the BOM.",
+  "node": "FTX6537_screw_upright",
+  "length": 12,
+  "pitch": 0.5
+ },
+ {
+  "ftx": "FTX6315B",
+  "label": "Wheel (rim)",
+  "page": "p25",
+  "axis": [
+   -1,
+   0,
+   0
+  ],
+  "explode_mm": 120,
+  "step": 1,
+  "guess": true,
+  "kind": "part",
+  "group": "wheel",
+  "note": "Sold glued to the tyre as the mounted pair FTX6310B. 2.8 in wheel, 12 mm hex.",
+  "node": "FTX6315B_wheel"
+ },
+ {
+  "ftx": "FTX6310B",
+  "label": "Tyre on wheel (mounted pair)",
+  "page": "p24",
+  "axis": [
+   -1,
+   0,
+   0
+  ],
+  "explode_mm": 120,
+  "step": 1,
+  "guess": true,
+  "kind": "part",
+  "group": "wheel",
+  "note": "120 mm tall, 60 mm wide. The tread pattern is a stand-in.",
+  "node": "FTX6310B_tyre"
+ },
+ {
+  "ftx": "M4 nut",
+  "label": "Wheel nut, M4 nylon lock (part number not confirmed)",
+  "page": "p24",
+  "axis": [
+   -1,
+   0,
+   0
+  ],
+  "explode_mm": 190,
+  "step": 1,
+  "guess": true,
+  "kind": "part",
+  "group": "wheel",
+  "note": "Owners report a nut with a star washer; the manual BOM lists a nylon lock nut. Not confirmed.",
+  "node": "wheel_nut_M4"
+ },
+ {
+  "ftx": "FAST118",
+  "label": "Top shock screw, cap head M3x18",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 40,
+  "step": 2,
+  "guess": false,
+  "kind": "screw_mover",
+  "group": "screws",
+  "note": "",
+  "node": "FAST118_screw_carrier",
+  "length": 18,
+  "pitch": 0.5,
+  "engage_mm": 8.5,
+  "free_mm": 9.9,
+  "turns": 17
+ },
+ {
+  "ftx": "FAST118",
+  "label": "Top shock screw, cap head M3x18",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 40,
+  "step": 2,
+  "guess": false,
+  "kind": "screw_mover",
+  "group": "screws",
+  "note": "",
+  "node": "FAST118_screw",
+  "length": 18,
+  "pitch": 0.5,
+  "engage_mm": 8.5,
+  "free_mm": 9.9,
+  "turns": 17
+ },
+ {
+  "ftx": "FTX6527",
+  "label": "Bottom shock screw, button head M3x12",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 40,
+  "step": 3,
+  "guess": false,
+  "kind": "screw_mover",
+  "group": "screws",
+  "note": "",
+  "node": "FTX6527_screw_carrier",
+  "length": 12,
+  "pitch": 0.5,
+  "engage_mm": 2.5,
+  "free_mm": 9.45,
+  "turns": 5
+ },
+ {
+  "ftx": "FTX6527",
+  "label": "Bottom shock screw, button head M3x12",
+  "page": "p24",
+  "axis": [
+   0,
+   -1,
+   0
+  ],
+  "explode_mm": 40,
+  "step": 3,
+  "guess": false,
+  "kind": "screw_mover",
+  "group": "screws",
+  "note": "",
+  "node": "FTX6527_screw",
+  "length": 12,
+  "pitch": 0.5,
+  "engage_mm": 2.5,
+  "free_mm": 9.45,
+  "turns": 5
+ },
+ {
+  "ftx": "tray",
+  "label": "Screw tray",
+  "page": "-",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 0,
+  "step": 0,
+  "guess": false,
+  "kind": "prop",
+  "group": "props",
+  "note": "Bench tray, not a truck part.",
+  "node": "tray"
+ },
+ {
+  "ftx": "tray",
+  "label": "Tray label M3x18",
+  "page": "-",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 0,
+  "step": 0,
+  "guess": false,
+  "kind": "prop",
+  "group": "props",
+  "note": "",
+  "node": "tray_label_M3x18"
+ },
+ {
+  "ftx": "tray",
+  "label": "Tray label M3x12",
+  "page": "-",
+  "axis": [
+   0,
+   0,
+   1
+  ],
+  "explode_mm": 0,
+  "step": 0,
+  "guess": false,
+  "kind": "prop",
+  "group": "props",
+  "note": "",
+  "node": "tray_label_M3x12"
+ }
+]

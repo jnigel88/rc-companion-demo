@@ -1,0 +1,487 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shock and screw, look test</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect fill='%23f4f3f0' width='16' height='16'/%3E%3Ccircle fill='%23141413' cx='8' cy='8' r='3.5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4f3f0;
+      --ink: #141413;
+      --muted: #6b6860;
+      --line: #dcd9d3;
+      --card: #fbfaf8;
+      --serif: "Newsreader", Georgia, "Times New Roman", serif;
+      --sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 1.0625rem; line-height: 1.55; }
+    .shell { max-width: 1400px; margin: 0 auto; padding: 44px 32px 96px; }
+    .intro { margin-bottom: 28px; }
+    .intro h1 { margin: 0 0 12px; font-family: var(--serif); font-weight: 400; font-size: clamp(2.2rem, 4.2vw, 3.5rem); line-height: 1.04; letter-spacing: -0.03em; }
+    .intro .lead { margin: 0; color: var(--muted); font-size: 1.15rem; max-width: 52rem; }
+    .back { display: inline-block; margin-bottom: 18px; font-size: 0.85rem; color: var(--muted); text-decoration: none; }
+    .back:hover { color: var(--ink); }
+
+    .demo { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 32px; align-items: start; }
+    .stage-col { min-width: 0; }
+    .view { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #cfcdc9; border: 1px solid var(--line); }
+    .view canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+    .view canvas:active { cursor: grabbing; }
+    .still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; opacity: 0; pointer-events: none; transition: opacity 0.18s ease; }
+    .view.compare .still { opacity: 1; }
+    .view-top, .view-bottom { position: absolute; left: 16px; right: 16px; z-index: 3; display: flex; justify-content: space-between; align-items: center; gap: 12px; pointer-events: none; }
+    .view-top { top: 16px; }
+    .view-bottom { bottom: 16px; }
+    .view-bottom p { margin: 0; font-size: 0.85rem; color: #4c4a44; }
+    .chip { pointer-events: auto; font: inherit; font-size: 0.85rem; font-weight: 500; padding: 8px 14px; color: var(--ink); background: rgba(255, 255, 255, 0.82); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+    .chip:hover { border-color: var(--ink); }
+    .chip[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .readout { pointer-events: none; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 8px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.82); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+    .loading, .view-error { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; padding: 24px; text-align: center; background: #cfcdc9; color: #4c4a44; }
+    .loading[hidden], .view-error[hidden] { display: none !important; }
+
+    .controls { margin-top: 24px; }
+    .controls.disabled { opacity: 0.4; pointer-events: none; }
+    .slider-row { display: flex; align-items: center; gap: 20px; }
+    .end-label { background: none; border: 0; padding: 0; font: inherit; font-family: var(--serif); font-size: 1.5rem; color: var(--muted); cursor: pointer; min-width: 5.5rem; }
+    .end-label:last-child { text-align: right; }
+    .end-label:hover, .end-label.here { color: var(--ink); }
+    input[type="range"] { --p: 0%; -webkit-appearance: none; appearance: none; flex: 1; height: 44px; background: transparent; margin: 0; }
+    input[type="range"]:focus { outline: none; }
+    input[type="range"]::-webkit-slider-runnable-track { height: 2px; border-radius: 2px; background: linear-gradient(to right, var(--ink) var(--p), #cfccc5 var(--p)); }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -10px; border-radius: 50%; background: var(--ink); border: 4px solid var(--bg); box-shadow: 0 0 0 1px var(--ink); }
+    input[type="range"]::-moz-range-track { height: 2px; background: #cfccc5; border: 0; }
+    input[type="range"]::-moz-range-progress { height: 2px; background: var(--ink); }
+    input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 4px solid var(--bg); box-shadow: 0 0 0 1px var(--ink); }
+    .caption { margin: 16px 0 0; font-size: 0.95rem; color: var(--muted); max-width: 46rem; }
+
+    .card { position: sticky; top: 24px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 28px 26px 26px; }
+    .card .eyebrow { margin: 0 0 10px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .card h2 { margin: 0 0 4px; font-family: var(--serif); font-weight: 400; font-size: 2.3rem; line-height: 1.05; letter-spacing: -0.02em; }
+    .card .meta { margin: 0 0 18px; font-size: 0.88rem; color: var(--muted); }
+    .card h3 { margin: 0 0 4px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .card p.body { margin: 0 0 16px; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 4px; }
+    .stat { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-family: var(--serif); font-weight: 400; font-size: 1.6rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+    .btn { font: inherit; font-size: 0.95rem; font-weight: 600; padding: 13px 14px; border-radius: 999px; cursor: pointer; border: 1px solid var(--ink); }
+    .btn.primary { background: var(--ink); color: #fff; }
+    .btn.ghost { background: transparent; color: var(--ink); }
+    .btn:hover { opacity: 0.88; }
+
+    .facts { margin-top: 72px; padding-top: 36px; border-top: 1px solid var(--line); max-width: 48rem; }
+    .facts h2 { margin: 0 0 18px; font-family: var(--serif); font-weight: 400; font-size: 1.75rem; }
+    .facts ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+    .facts li { color: var(--muted); padding-left: 16px; border-left: 2px solid var(--line); }
+    .facts li strong { color: var(--ink); font-weight: 600; }
+    :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    @media (max-width: 1000px) {
+      .demo { grid-template-columns: 1fr; }
+      .card { position: static; }
+      .shell { padding: 48px 20px 72px; }
+    }
+    @media (max-width: 640px) {
+      .end-label { font-size: 1.1rem; min-width: 4rem; }
+      .card h2 { font-size: 2rem; }
+      .readout { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <a class="back" href="how-it-gets-built.html">&larr; The front axle demo</a>
+    <header class="intro">
+      <h1>One shock, one screw</h1>
+      <p class="lead">A look test. Press Back it out and watch the real M3 screw turn, rise half a millimetre a turn, lift free and land in its slot in the tray. Drag to look around it.</p>
+    </header>
+
+    <div class="demo">
+      <div class="stage-col">
+        <div class="view" id="view">
+          <p class="loading" id="loading">Setting up the bench&hellip;</p>
+          <p class="view-error" id="view-error" hidden>The 3D view did not start. Refresh the page. Chrome works best.</p>
+          <img class="still" id="still" src="stage1/shock-still.png" alt="The same scene rendered in Cycles for comparison">
+          <div class="view-top">
+            <span class="readout" id="phase">Waiting</span>
+            <button type="button" class="chip" id="compare" aria-pressed="false">Show the Cycles still</button>
+          </div>
+          <div class="view-bottom">
+            <p>Drag to orbit. Scroll to zoom.</p>
+            <button type="button" class="chip" id="reset">Reset view</button>
+          </div>
+        </div>
+
+        <div class="controls disabled" id="controls">
+          <div class="slider-row">
+            <button type="button" class="end-label here" id="go-start">In</button>
+            <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="From screw in to screw in the tray" aria-valuetext="Screw in">
+            <button type="button" class="end-label" id="go-end">In the tray</button>
+          </div>
+          <p class="caption">Made from the FTX Carnage 2.0 manual, the shop photos and review videos. Light and shadows were built in Blender, then brought into the page.</p>
+        </div>
+      </div>
+
+      <aside>
+        <article class="card" aria-live="polite">
+          <p class="eyebrow">Front shock, left</p>
+          <h2>Top screw</h2>
+          <p class="meta">M3 &times; 18 mm cap head (manual code FAST118)</p>
+          <div class="stats">
+            <div class="stat"><b id="turns">0.0</b><span>Turns of 17</span></div>
+            <div class="stat"><b id="out">0.0</b><span>Millimetres out</span></div>
+          </div>
+          <h3>What it does</h3>
+          <p class="body">Holds the top eye of the shock to the tower. A thread this fine moves half a millimetre for every full turn.</p>
+          <div class="btn-row">
+            <button type="button" class="btn ghost" id="put-back">Put it back</button>
+            <button type="button" class="btn primary" id="back-out">Back it out</button>
+          </div>
+        </article>
+      </aside>
+    </div>
+
+    <section class="facts" aria-labelledby="facts-title">
+      <h2 id="facts-title">What is real and what is a guess</h2>
+      <ul>
+        <li><strong>Real:</strong> the shock&rsquo;s length, its parts and their names come from the manual spare list and the shop photos. The screw is an actual M3 thread, 0.5 mm pitch.</li>
+        <li><strong>Guess:</strong> the little tower stub the screw threads into, the exact blue, and how deep the thread goes. The next steps replace these with checked shapes.</li>
+        <li><strong>Not shown:</strong> the inside of the shock. It is solid here.</li>
+      </ul>
+    </section>
+  </div>
+
+  <noscript>Turn on JavaScript to use the 3D view.</noscript>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+
+    const BASE = "stage1/";
+    const $ = (id) => document.getElementById(id);
+    const MM = 0.001;
+    const toThree = (x, y, z) => new THREE.Vector3(x * MM, z * MM, -y * MM);
+    const params = new URLSearchParams(location.search);
+
+    const PHASES = [
+      ["Waiting", 0],
+      ["Turning it out", 0.5],
+      ["Pulling it free", 5.1],
+      ["Lifting to the tray", 5.7],
+      ["Lowering into the slot", 7.2],
+      ["In its slot", 7.75]
+    ];
+
+    async function main() {
+      if (document.fonts && document.fonts.ready) {
+        await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1200))]);
+      }
+      const view = $("view");
+      const data = await (await fetch(BASE + "web_data.json")).json();
+      const samples = data.anim;
+      const FPS = data.screw.fps;
+      const TOTAL = (samples.length - 1) / FPS;
+      const TURNS = data.screw.turns;
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.NeutralToneMapping;
+      renderer.toneMappingExposure = Number(params.get("exp") ?? 1.0);
+      renderer.setClearColor(0xc9c7c3);
+      view.insertBefore(renderer.domElement, view.firstChild);
+      renderer.domElement.setAttribute("aria-label", "A front shock and one M3 screw on a grey studio floor. Drag to orbit.");
+
+      const scene = new THREE.Scene();
+      const cam = data.camera;
+      const target = toThree(...cam.target);
+      const camera = new THREE.PerspectiveCamera(30, 16 / 9, 0.01, 6);
+      camera.position.copy(toThree(...cam.pos));
+      const hHalf = Math.atan(cam.sensor_w / 2 / cam.lens);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.target.copy(target);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.enablePan = false;
+      controls.minDistance = 0.14;
+      controls.maxDistance = 0.75;
+      controls.minPolarAngle = 0.25;
+      controls.maxPolarAngle = 1.45;
+      const az0 = Math.atan2(camera.position.x - target.x, camera.position.z - target.z);
+      controls.minAzimuthAngle = az0 - 1.35;
+      controls.maxAzimuthAngle = az0 + 1.35;
+      controls.update();
+      const home = { pos: camera.position.clone(), target: target.clone() };
+
+      // image light from the Blender studio, same file the Cycles scene was lit by
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      await new Promise((resolve) => {
+        new RGBELoader().load(BASE + "studio.hdr", (tex) => {
+          tex.mapping = THREE.EquirectangularReflectionMapping;
+          scene.environment = pmrem.fromEquirectangular(tex).texture;
+          scene.environmentRotation.set(0, THREE.MathUtils.degToRad(Number(params.get("envrot") ?? 90)), 0);
+          scene.environmentIntensity = Number(params.get("env") ?? 0.85);
+          tex.dispose();
+          resolve();
+        }, undefined, resolve);
+      });
+
+      // floor and back wall: Blender's own baked light and shadows
+      const sw = data.sweep;
+      const pos = [];
+      const uv = [];
+      const idx = [];
+      sw.path.forEach(([y, z], i) => {
+        const v = sw.seg_len[i] / sw.seg_len[sw.seg_len.length - 1];
+        [-sw.x, sw.x].forEach((x, k) => {
+          const p = toThree(x, y, z);
+          pos.push(p.x, p.y, p.z);
+          uv.push(k, v);
+        });
+        if (i > 0) {
+          const a = (i - 1) * 2;
+          idx.push(a, a + 1, a + 3, a, a + 3, a + 2);
+        }
+      });
+      const sg = new THREE.BufferGeometry();
+      sg.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      sg.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+      sg.setIndex(idx);
+      const bake = await new THREE.TextureLoader().loadAsync(BASE + "sweep-bake.jpg");
+      bake.colorSpace = THREE.SRGBColorSpace;
+      bake.anisotropy = 8;
+      // The home view is the exact Cycles plate (sweep only, shadows included) projected from the home camera.
+      // Away from that view it fades to the world-fixed bake so orbiting never shows a hole.
+      const plate = await new THREE.TextureLoader().loadAsync(BASE + "plate.jpg");
+      plate.colorSpace = THREE.SRGBColorSpace;
+      plate.wrapS = plate.wrapT = THREE.ClampToEdgeWrapping;
+      const homeCam = new THREE.PerspectiveCamera(THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(hHalf) / (16 / 9))), 16 / 9, 0.01, 6);
+      homeCam.position.copy(camera.position);
+      homeCam.lookAt(target);
+      homeCam.updateMatrixWorld(true);
+      homeCam.updateProjectionMatrix();
+      const homeVP = new THREE.Matrix4().multiplyMatrices(homeCam.projectionMatrix, homeCam.matrixWorldInverse);
+      const sweepMat = new THREE.ShaderMaterial({
+        side: THREE.DoubleSide,
+        uniforms: { plate: { value: plate }, bake: { value: bake }, homeVP: { value: homeVP } },
+        vertexShader: `
+          varying vec3 vWorld;
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            vec4 w = modelMatrix * vec4(position, 1.0);
+            vWorld = w.xyz;
+            gl_Position = projectionMatrix * viewMatrix * w;
+          }`,
+        fragmentShader: `
+          uniform sampler2D plate;
+          uniform sampler2D bake;
+          uniform mat4 homeVP;
+          varying vec3 vWorld;
+          varying vec2 vUv;
+          void main() {
+            vec4 c = homeVP * vec4(vWorld, 1.0);
+            vec2 p = c.xy / c.w * 0.5 + 0.5;
+            float d = max(max(-p.x, p.x - 1.0), max(-p.y, p.y - 1.0));
+            float m = c.w > 0.0 ? 1.0 - smoothstep(0.0, 0.25, d) : 0.0;
+            vec3 a = texture2D(plate, clamp(p, 0.0, 1.0)).rgb;
+            vec3 b = texture2D(bake, vUv).rgb;
+            gl_FragColor = vec4(mix(b, a, m), 1.0);
+            #include <colorspace_fragment>
+          }`,
+      });
+      const sweep = new THREE.Mesh(sg, sweepMat);
+      scene.add(sweep);
+
+      scene.add(new THREE.HemisphereLight(0xcbc9c6, 0xcbc9c6, Number(params.get("hemi") ?? 0.22)));
+      const keyBox = data.softboxes.sb_key;
+      const key = new THREE.DirectionalLight(0xfff6ea, Number(params.get("key") ?? 0.4));
+      key.position.copy(toThree(...keyBox.pos));
+      key.target.position.copy(target);
+      scene.add(key, key.target);
+      const lightDir = key.target.position.clone().sub(key.position).normalize();
+
+      // soft contact shadow that follows the screw; everything else has its shadow baked into the floor
+      const sc = document.createElement("canvas");
+      sc.width = 128; sc.height = 128;
+      const sx = sc.getContext("2d");
+      const grad = sx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      grad.addColorStop(0, "rgba(0,0,0,1)");
+      grad.addColorStop(0.45, "rgba(0,0,0,0.55)");
+      grad.addColorStop(1, "rgba(0,0,0,0)");
+      sx.fillStyle = grad;
+      sx.fillRect(0, 0, 128, 128);
+      const shadowTex = new THREE.CanvasTexture(sc);
+      const shadowMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, toneMapped: false });
+      const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), shadowMat);
+      shadowPlane.rotation.x = -Math.PI / 2;
+      shadowPlane.renderOrder = 2;
+      const shadowGroup = new THREE.Group();
+      shadowGroup.add(shadowPlane);
+      scene.add(shadowGroup);
+      const gltf = await new GLTFLoader().loadAsync(BASE + "shock-stage1.glb");
+      const model = gltf.scene;
+      scene.add(model);
+      let carrier = null;
+      let screwNode = null;
+      model.traverse((o) => {
+        if (o.name === "screw_carrier") carrier = o;
+        if (o.name === "screw_m3x18") screwNode = o;
+        if (o.isMesh) {
+          const m = o.material;
+          if (m && m.isMeshStandardMaterial) m.envMapIntensity = 1.0;
+        }
+      });
+      if (!carrier || !screwNode) throw new Error("screw nodes missing in the model file");
+      const carrierRest = carrier.position.clone();
+
+      function sample(t) {
+        const f = Math.min(samples.length - 1, Math.max(0, t * FPS));
+        const i = Math.floor(f);
+        const j = Math.min(samples.length - 1, i + 1);
+        const k = f - i;
+        const a = samples[i];
+        const b = samples[j];
+        return a.map((v, n) => v + (b[n] - v) * k);
+      }
+
+      const SCREW_LEN = 0.0195;
+      const pTip = new THREE.Vector3();
+      const pHead = new THREE.Vector3();
+      function dropToFloor(p) {
+        const over = p.x > 0.028 && p.x < 0.096 && p.z > 0.025 && p.z < 0.079;
+        const h0 = over ? 0.0045 : 0.0002;
+        const k = (p.y - h0) / -lightDir.y;
+        return { x: p.x + lightDir.x * k, z: p.z + lightDir.z * k, h0 };
+      }
+      function placeShadow() {
+        carrier.updateMatrixWorld(true);
+        screwNode.localToWorld(pTip.set(0, 0, 0));
+        screwNode.localToWorld(pHead.set(0, SCREW_LEN, 0));
+        const a = dropToFloor(pTip);
+        const b = dropToFloor(pHead);
+        const high = Math.max(0, Math.min(pTip.y, pHead.y) - a.h0);
+        const dx = b.x - a.x;
+        const dz = b.z - a.z;
+        const blur = 0.0035 + high * 0.35;
+        shadowGroup.position.set((a.x + b.x) / 2, a.h0 + 0.0003, (a.z + b.z) / 2);
+        shadowGroup.rotation.y = Math.atan2(-dz, dx);
+        shadowPlane.scale.set(Math.hypot(dx, dz) + blur * 1.6, blur * 1.2 + 0.003, 1);
+        shadowMat.opacity = 0.42 / (1 + high * 60);
+      }
+
+      const state = { t: 0, dir: 0 };
+      function pose() {
+        const [adv, spin, lx, ly, lz] = sample(state.t);
+        carrier.position.copy(carrierRest).add(toThree(lx, ly, lz));
+        screwNode.position.set(0, adv * MM, 0);
+        screwNode.rotation.set(0, spin, 0);
+        placeShadow();
+        $("turns").textContent = Math.min(TURNS, spin / (2 * Math.PI)).toFixed(1);
+        $("out").textContent = adv.toFixed(1);
+        let phase = PHASES[0][0];
+        PHASES.forEach(([n, t0]) => { if (state.t >= t0 - 1e-6) phase = n; });
+        $("phase").textContent = phase;
+        const frac = state.t / TOTAL;
+        const scrub = $("scrub");
+        scrub.value = String(Math.round(frac * 1000));
+        scrub.style.setProperty("--p", (frac * 100).toFixed(1) + "%");
+        scrub.setAttribute("aria-valuetext", frac < 0.02 ? "Screw in" : frac > 0.98 ? "Screw in the tray" : phase);
+        $("go-start").classList.toggle("here", frac < 0.02);
+        $("go-end").classList.toggle("here", frac > 0.98);
+      }
+
+      function resize() {
+        const w = view.clientWidth;
+        const h = view.clientHeight;
+        if (!w || !h) return;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(hHalf) / camera.aspect));
+        camera.updateProjectionMatrix();
+      }
+      resize();
+      new ResizeObserver(resize).observe(view);
+
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      $("back-out").addEventListener("click", () => {
+        if (state.t >= TOTAL - 0.01) state.t = 0;
+        state.dir = reduced ? 0 : 1;
+        if (reduced) { state.t = TOTAL; pose(); }
+      });
+      $("put-back").addEventListener("click", () => {
+        if (state.t <= 0.01) state.t = TOTAL;
+        state.dir = reduced ? 0 : -1;
+        if (reduced) { state.t = 0; pose(); }
+      });
+      $("go-start").addEventListener("click", () => { state.dir = 0; state.t = 0; pose(); });
+      $("go-end").addEventListener("click", () => { state.dir = 0; state.t = TOTAL; pose(); });
+      $("scrub").addEventListener("input", (e) => {
+        state.dir = 0;
+        state.t = (Number(e.target.value) / 1000) * TOTAL;
+        pose();
+      });
+      $("reset").addEventListener("click", () => {
+        camera.position.copy(home.pos);
+        controls.target.copy(home.target);
+        controls.update();
+      });
+      const cmp = $("compare");
+      cmp.addEventListener("click", () => {
+        const on = !view.classList.contains("compare");
+        view.classList.toggle("compare", on);
+        cmp.setAttribute("aria-pressed", String(on));
+        cmp.textContent = on ? "Back to live" : "Show the Cycles still";
+      });
+
+      if (params.has("t")) state.t = Math.min(TOTAL, Math.max(0, Number(params.get("t"))));
+      if (params.has("still")) state.t = data.screw.still_t;
+      pose();
+      if (params.has("play")) state.dir = 1;
+      $("controls").classList.remove("disabled");
+      $("loading").hidden = true;
+
+      let last = performance.now();
+      function tick(now) {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        if (state.dir !== 0) {
+          state.t += state.dir * dt;
+          if (state.t >= TOTAL) { state.t = TOTAL; state.dir = 0; }
+          if (state.t <= 0) { state.t = 0; state.dir = 0; }
+          pose();
+        }
+        controls.update();
+        renderer.render(scene, camera);
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      window.__stage1 = { state, pose, camera, controls, scene, renderer, TOTAL };
+      document.body.dataset.ready = "1";
+    }
+
+    main().catch((err) => {
+      console.error(err);
+      $("loading").hidden = true;
+      $("view-error").hidden = false;
+    });
+  </script>
+</body>
+</html>
